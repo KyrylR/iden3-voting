@@ -10,3 +10,8 @@ coverage
 
 # Typechain generated files
 generated-types
+
+contracts/generated-markups
+contracts/circuits
+!contracts/circuits/Voting.circom
+!contracts/circuits/helper.sh

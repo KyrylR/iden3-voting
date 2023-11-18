@@ -6,6 +6,7 @@ import { MerkleTree } from "merkletreejs";
 
 import { poseidonHash } from "@/test/helpers/poseidon-hash";
 import { getBytes32PoseidonHash, getPositionalProof } from "@/test/helpers/merkle-tree-helper";
+import { VerifierHelper } from "@/generated-types/ethers/contracts/Voting";
 
 export interface SecretPair {
   secret: string;
@@ -17,8 +18,8 @@ export function generateSecrets(): SecretPair {
   const nullifier = ethers.randomBytes(28);
 
   return {
-    secret: hexlifyElement(secret),
-    nullifier: hexlifyElement(nullifier),
+    secret: padElement(ethers.hexlify(secret)),
+    nullifier: padElement(ethers.hexlify(nullifier)),
   };
 }
 
@@ -30,7 +31,7 @@ export function getNullifierHash(pair: SecretPair): string {
   return poseidonHash(pair.nullifier);
 }
 
-export async function getZKP(pair: SecretPair, recipient: string, root: string, tree: MerkleTree) {
+export async function getZKP(pair: SecretPair, voter: string, proposalId: string, root: string, tree: MerkleTree) {
   const leaf = getBytes32PoseidonHash(getCommitment(pair));
   const nullifierHash = getNullifierHash(pair);
 
@@ -42,24 +43,23 @@ export async function getZKP(pair: SecretPair, recipient: string, root: string, 
       nullifierHash,
       secret: pair.secret,
       nullifier: pair.nullifier,
-      recipient,
+      voter,
+      proposalId,
       pathElements,
       pathIndices,
     },
-    `./circuits/outputs/withdraw.wasm`,
+    `./circuits/outputs/voting.wasm`,
     `./circuits/outputs/circuit_final.zkey`
   );
 
   swap(proof.pi_b[0], 0, 1);
   swap(proof.pi_b[1], 0, 1);
 
-  // const formattedProof: VerifierHelper.ProofPointsStruct = {
-  //   a: proof.pi_a.slice(0, 2).map((x: any) => hexlifyElement(BigInt(x))),
-  //   b: proof.pi_b.slice(0, 2).map((x: any[]) => x.map((y: any) => hexlifyElement(BigInt(y)))),
-  //   c: proof.pi_c.slice(0, 2).map((x: any) => hexlifyElement(BigInt(x))),
-  // };
-
-  const formattedProof = {};
+  const formattedProof: VerifierHelper.ProofPointsStruct = {
+    a: proof.pi_a.slice(0, 2).map((x: any) => padElement(BigInt(x))),
+    b: proof.pi_b.slice(0, 2).map((x: any[]) => x.map((y: any) => padElement(BigInt(y)))),
+    c: proof.pi_c.slice(0, 2).map((x: any) => padElement(BigInt(x))),
+  };
 
   return {
     formattedProof,
@@ -87,6 +87,6 @@ function swap(arr: any, i: number, j: number) {
   arr[j] = temp;
 }
 
-function hexlifyElement(element: any) {
-  return ethers.toBeHex(ethers.hexlify(element), 32);
+function padElement(element: any) {
+  return ethers.toBeHex(element, 32);
 }
