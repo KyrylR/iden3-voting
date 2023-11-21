@@ -8,6 +8,7 @@ pub struct Settings {
     pub contract_address: String,
     pub from_block: u64,
     pub abi_path: String,
+    pub tree_height: u64,
 }
 
 pub fn make(path: &str) -> Result<Settings, Box<dyn Error>> {
@@ -33,6 +34,7 @@ mod tests {
         contract_address: "0x123..."
         from_block: 123456
         abi_path: "/path/to/abi.json"
+        tree_height: 6
         "#;
 
         let path = "test_Settings.yaml";
@@ -52,5 +54,6 @@ mod tests {
         assert_eq!(settings.contract_address, "0x123...");
         assert_eq!(settings.from_block, 123456);
         assert_eq!(settings.abi_path, "/path/to/abi.json");
+        assert_eq!(settings.tree_height, 6);
     }
 }
