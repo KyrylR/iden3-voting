@@ -110,6 +110,11 @@ contract Voting is PoseidonIMT {
      */
     event ProposalCreated(uint256 indexed proposalId, ProposalInfo proposal);
 
+    /**
+     * @notice Event emitted when a commitment is added.
+     */
+    event AddedCommitment(uint256 indexed proposalId, bytes32 commitment);
+
     modifier onlyThis() {
         require(msg.sender == address(this), "Voting: caller is not this contract");
         _;
@@ -237,6 +242,8 @@ contract Voting is PoseidonIMT {
         rootsHistory[getRoot()] = true;
 
         ++proposal_.counters.commitments;
+
+        emit AddedCommitment(proposalId_, commitment_);
     }
 
     /**
