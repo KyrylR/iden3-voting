@@ -1,0 +1,559 @@
+[
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "treeHeight_",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "verifier_",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "constructor"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "proposalId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "bytes32",
+        "name": "commitment",
+        "type": "bytes32"
+      }
+    ],
+    "name": "AddedCommitment",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "proposalId",
+        "type": "uint256"
+      },
+      {
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "id",
+            "type": "uint256"
+          },
+          {
+            "internalType": "string",
+            "name": "remark",
+            "type": "string"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint256",
+                "name": "votingEndTime",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "commitmentEndTime",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "proposalExecutionEndTime",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "requiredQuorum",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "requiredMajority",
+                "type": "uint256"
+              }
+            ],
+            "internalType": "struct Voting.ProposalParams",
+            "name": "params",
+            "type": "tuple"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint256",
+                "name": "votesFor",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "votesAgainst",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "commitments",
+                "type": "uint256"
+              }
+            ],
+            "internalType": "struct Voting.ProposalCounters",
+            "name": "counters",
+            "type": "tuple"
+          },
+          {
+            "internalType": "bytes",
+            "name": "callData",
+            "type": "bytes"
+          },
+          {
+            "internalType": "bool",
+            "name": "isExecuted",
+            "type": "bool"
+          }
+        ],
+        "indexed": false,
+        "internalType": "struct Voting.ProposalInfo",
+        "name": "proposal",
+        "type": "tuple"
+      }
+    ],
+    "name": "ProposalCreated",
+    "type": "event"
+  },
+  {
+    "inputs": [],
+    "name": "PERCENTAGE_100",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "element_",
+        "type": "bytes32"
+      }
+    ],
+    "name": "add",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "name": "branches",
+    "outputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "proposalId_",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "commitment_",
+        "type": "bytes32"
+      }
+    ],
+    "name": "commitOnProposal",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "name": "commitments",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "remark_",
+        "type": "string"
+      },
+      {
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "commitmentPeriod",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "votingPeriod",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "proposalExecutionPeriod",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "requiredQuorum",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "requiredMajority",
+            "type": "uint256"
+          }
+        ],
+        "internalType": "struct Voting.ProposalData",
+        "name": "proposalData_",
+        "type": "tuple"
+      },
+      {
+        "internalType": "bytes",
+        "name": "callData_",
+        "type": "bytes"
+      }
+    ],
+    "name": "createProposal",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "id_",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "recipient_",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amount_",
+        "type": "uint256"
+      }
+    ],
+    "name": "distributeFunds",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "proposalId_",
+        "type": "uint256"
+      }
+    ],
+    "name": "executeProposal",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getHeight",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getLength",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getRoot",
+    "outputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "leavesCount",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "name": "nullifies",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "name": "proposals",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "id",
+        "type": "uint256"
+      },
+      {
+        "internalType": "string",
+        "name": "remark",
+        "type": "string"
+      },
+      {
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "votingEndTime",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "commitmentEndTime",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "proposalExecutionEndTime",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "requiredQuorum",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "requiredMajority",
+            "type": "uint256"
+          }
+        ],
+        "internalType": "struct Voting.ProposalParams",
+        "name": "params",
+        "type": "tuple"
+      },
+      {
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "votesFor",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "votesAgainst",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "commitments",
+            "type": "uint256"
+          }
+        ],
+        "internalType": "struct Voting.ProposalCounters",
+        "name": "counters",
+        "type": "tuple"
+      },
+      {
+        "internalType": "bytes",
+        "name": "callData",
+        "type": "bytes"
+      },
+      {
+        "internalType": "bool",
+        "name": "isExecuted",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "proposalsCount",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "name": "rootsHistory",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "verifier",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "proposalId_",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "nullifierHash_",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "root_",
+        "type": "bytes32"
+      },
+      {
+        "components": [
+          {
+            "internalType": "uint256[2]",
+            "name": "a",
+            "type": "uint256[2]"
+          },
+          {
+            "internalType": "uint256[2][2]",
+            "name": "b",
+            "type": "uint256[2][2]"
+          },
+          {
+            "internalType": "uint256[2]",
+            "name": "c",
+            "type": "uint256[2]"
+          }
+        ],
+        "internalType": "struct VerifierHelper.ProofPoints",
+        "name": "proof_",
+        "type": "tuple"
+      },
+      {
+        "internalType": "enum Voting.VotingOption",
+        "name": "votingOption_",
+        "type": "uint8"
+      }
+    ],
+    "name": "voteOnProposal",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "stateMutability": "payable",
+    "type": "receive"
+  }
+]
