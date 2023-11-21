@@ -1,6 +1,6 @@
-use std::error::Error;
-use serde::{Deserialize, Serialize};
 use config::{Config, File, FileFormat};
+use serde::{Deserialize, Serialize};
+use std::error::Error;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Settings {
@@ -21,9 +21,9 @@ pub fn make(path: &str) -> Result<Settings, Box<dyn Error>> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::fs;
     use std::fs::File as FsFile;
     use std::io::Write;
-    use std::fs;
 
     #[test]
     fn test_make() {

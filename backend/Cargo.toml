@@ -9,8 +9,13 @@ edition = "2021"
 axum = "0.6.20"
 config = "0.13.3"
 ethers = { version = "2.0.11", features = ["rustls"] }
+ff = {package="ff_ce" , version="0.11", features = ["derive"]}
+poseidon-rs = "0.0.10"
+rand = "0.4"
 serde = { version = "1.0.193", features = ["derive"] }
 tokio = { version = "1.34.0", features = ["macros", "rt-multi-thread"] }
+lazy_static = "1.4.0"
+rs_merkle = { git = "https://github.com/KyrylR/rs-merkle.git", rev = "387a556dd3b81af4fd9b6f7bf39e9d6a9412fb7c" }
 
 
 [[bin]]
