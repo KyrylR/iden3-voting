@@ -55,7 +55,12 @@ pub async fn handle_proof(
         commitment,
         tree_root: root,
         proof_hashes: proof.proof_hashes_hex().to_vec(),
-        proof_indices: proof.proof_indices().to_vec().iter().map(|x| x % 2).collect(),
+        proof_indices: proof
+            .proof_indices()
+            .to_vec()
+            .iter()
+            .map(|x| x % 2)
+            .collect(),
     };
 
     Json(response)
