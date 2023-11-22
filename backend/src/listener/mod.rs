@@ -3,9 +3,44 @@ use std::sync::Arc;
 
 use ethers::abi::Address;
 use ethers::providers::{Http, Provider, StreamExt};
+use rs_merkle::MerkleTree;
+use tokio::sync::Mutex;
 
 use crate::config::{make, Settings};
+use crate::poseidon_mt::PoseidonHasher;
 use crate::voting::{AddedCommitmentFilter, Voting};
+
+pub async fn listen_commitments(
+    mt: Arc<Mutex<MerkleTree<PoseidonHasher>>>,
+) -> Result<(), Box<dyn Error>> {
+    let config = make("Settings.yaml")?;
+
+    let contract = get_voting_instance(config.clone())?;
+
+    let events = contract
+        .event::<AddedCommitmentFilter>()
+        .from_block(config.from_block);
+    let mut stream = events.stream().await?;
+
+    println!(
+        "Listening for events; RPC URL: {}, contract address: {}, from block: {}",
+        config.rpc_url, config.contract_address, config.from_block
+    );
+
+    while let Some(event) = stream.next().await {
+        match event {
+            Ok(f) => {
+                println!("AddedCommitmentFilter event: {:?}", f);
+                mt.lock().await.insert_with_index(f.commitment);
+            }
+            Err(e) => {
+                eprintln!("Error while listening for events: {:?}", e);
+            }
+        }
+    }
+
+    Ok(())
+}
 
 pub async fn test_listen() -> Result<(), Box<dyn Error>> {
     let config = make("Settings.yaml")?;

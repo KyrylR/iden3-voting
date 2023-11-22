@@ -1,7 +1,10 @@
-use axum::{Router, routing::get};
+use axum::{routing::get, Router};
 use rs_merkle::MerkleTree;
+use std::sync::Arc;
+use tokio::sync::Mutex;
 
 use backend::config::make;
+use backend::listener::listen_commitments;
 use backend::poseidon_mt::{hash_str, PoseidonHasher};
 
 #[tokio::main]
@@ -11,7 +14,18 @@ async fn main() {
 
     println!("Building Merkle Tree...");
 
-    let _mt = build_mt();
+    let mt = build_mt();
+
+    let shared_mt = Arc::new(Mutex::new(mt));
+
+    println!("Starting background task...");
+
+    let listener_mt = shared_mt.clone();
+    tokio::spawn(async move {
+        let _ = listen_commitments(listener_mt)
+            .await
+            .map_err(|e| eprintln!("{:?}", e));
+    });
 
     println!("Starting server on localhost:3000...");
 
