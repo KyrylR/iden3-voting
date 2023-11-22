@@ -1,12 +1,13 @@
+use std::error::Error;
+
 use config::{Config, File, FileFormat};
 use serde::{Deserialize, Serialize};
-use std::error::Error;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Settings {
     pub rpc_url: String,
     pub contract_address: String,
-    pub from_block: u64,
+    pub default_from_block: u64,
     pub abi_path: String,
     pub tree_height: u64,
 }
@@ -21,10 +22,11 @@ pub fn make(path: &str) -> Result<Settings, Box<dyn Error>> {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use std::fs;
     use std::fs::File as FsFile;
     use std::io::Write;
+
+    use super::*;
 
     #[test]
     fn test_make() {
@@ -32,7 +34,7 @@ mod tests {
         let yaml_content = r#"
         rpc_url: "http://localhost:8545"
         contract_address: "0x123..."
-        from_block: 123456
+        default_from_block: 123456
         abi_path: "/path/to/abi.json"
         tree_height: 6
         "#;
@@ -52,7 +54,7 @@ mod tests {
         let settings = result.unwrap();
         assert_eq!(settings.rpc_url, "http://localhost:8545");
         assert_eq!(settings.contract_address, "0x123...");
-        assert_eq!(settings.from_block, 123456);
+        assert_eq!(settings.default_from_block, 123456);
         assert_eq!(settings.abi_path, "/path/to/abi.json");
         assert_eq!(settings.tree_height, 6);
     }

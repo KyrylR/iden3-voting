@@ -1,13 +1,26 @@
 use std::error::Error;
 
 use sqlx::{Connection, Pool, Postgres, sqlx_macros};
+use sqlx::postgres::PgPoolOptions;
 
 #[derive(Debug)]
 pub struct Commitment {
-    id: i64,
-    proposal_id: i64,
-    commitment: String,
-    block_number: i64,
+    pub id: i64,
+    pub proposal_id: i32,
+    pub commitment: String,
+    pub block_number: i32,
+}
+
+pub async fn get_database_pool() -> Result<Pool<Postgres>, Box<dyn Error>> {
+    dotenvy::dotenv().ok();
+    let database_url = std::env::var("DATABASE_URL").expect("DATABASE_URL must be set");
+
+    let pool = PgPoolOptions::new()
+        .max_connections(5)
+        .connect(&database_url)
+        .await?;
+
+    Ok(pool)
 }
 
 pub async fn fetch_all_commitments(
@@ -21,6 +34,33 @@ pub async fn fetch_all_commitments(
     .await?;
 
     Ok(commitments)
+}
+
+pub async fn fetch_max_block_number(pool: &Pool<Postgres>) -> Result<i32, Box<dyn Error>> {
+    let max_block_number =
+        sqlx::query!("SELECT MAX(block_number) as max_block_number FROM commitments")
+            .fetch_one(pool)
+            .await?
+            .max_block_number;
+
+    Ok(max_block_number.unwrap_or_default())
+}
+
+pub async fn insert_one_commitment(
+    pool: &Pool<Postgres>,
+    proposal_id: i32,
+    commitment: &str,
+    block_number: i32,
+) -> Result<Commitment, Box<dyn Error>> {
+    let inserted_commitment = sqlx::query_as!(
+        Commitment,
+        r#"INSERT INTO commitments (proposal_id, commitment, block_number) VALUES ($1, $2, $3) RETURNING id, proposal_id, commitment, block_number"#,
+        proposal_id, commitment, block_number
+    )
+    .fetch_one(pool)
+    .await?;
+
+    Ok(inserted_commitment)
 }
 
 #[sqlx_macros::test]
@@ -65,6 +105,27 @@ async fn test_insert_commitment() -> Result<(), Box<dyn Error>> {
     assert_eq!(inserted_commitment.proposal_id, new_proposal_id);
     assert_eq!(inserted_commitment.commitment, new_commitment);
     assert_eq!(inserted_commitment.block_number, new_block_number);
+
+    Ok(())
+}
+
+#[sqlx_macros::test]
+async fn test_delete_commitment() -> Result<(), Box<dyn Error>> {
+    dotenvy::dotenv().ok();
+    let database_url = std::env::var("DATABASE_URL").expect("DATABASE_URL must be set");
+
+    let mut conn = sqlx::PgConnection::connect(&database_url).await?;
+
+    let commitment_proposal_id = 10; // Example commitment_id
+
+    let deleted_commitment = sqlx::query!(
+        r#"DELETE FROM commitments WHERE proposal_id = $1 RETURNING id, proposal_id, commitment, block_number"#,
+        commitment_proposal_id
+    )
+        .fetch_one(&mut conn)
+        .await?;
+
+    assert_eq!(deleted_commitment.proposal_id, commitment_proposal_id);
 
     Ok(())
 }

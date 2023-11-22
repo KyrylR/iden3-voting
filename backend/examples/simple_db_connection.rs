@@ -33,7 +33,13 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     let all_commitments = fetch_all_commitments(&pool).await?;
 
-    println!("{:?}", all_commitments);
+    all_commitments.iter().for_each(|commitment| {
+        println!("ID: {:?}", commitment.id);
+        println!("Commitment: {:?}", commitment.commitment);
+        println!("Proposal ID: {:?}", commitment.proposal_id);
+        println!("Block Number: {:?}", commitment.block_number);
+        println!("==========================")
+    });
 
     Ok(())
 }

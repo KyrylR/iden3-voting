@@ -21,11 +21,7 @@ impl Hasher for PoseidonHasher {
 
         let hash = hasher.hash(data_fr).unwrap();
 
-        let binding = hex_to_bytes(hash.into_repr().to_string().as_str()).unwrap();
-
-        let mut array = [0u8; 32];
-        array.copy_from_slice(binding.as_slice());
-        array
+        commitment_to_slice(hash.into_repr().to_string())
     }
 }
 
@@ -43,12 +39,17 @@ pub fn hex_to_bytes(hex_str: &str) -> Result<Vec<u8>, hex::FromHexError> {
 pub fn hash_str(item: &str) -> [u8; 32] {
     let hasher = Poseidon::new();
 
-    let b1: Fr = Fr::from_str(item).unwrap();
-    let zero_hash = hasher.hash(vec![b1]).unwrap();
-    let binding = hex_to_bytes(zero_hash.into_repr().to_string().as_str()).unwrap();
+    let encoded_element: Fr = Fr::from_str(item).unwrap();
+    let element_hash = hasher.hash(vec![encoded_element]).unwrap();
+
+    commitment_to_slice(element_hash.into_repr().to_string())
+}
+
+pub fn commitment_to_slice(commitment: String) -> [u8; 32] {
+    let commitment_bytes = hex_to_bytes(commitment.as_str()).unwrap();
 
     let mut array = [0u8; 32];
-    array.copy_from_slice(binding.as_slice());
+    array.copy_from_slice(commitment_bytes.as_slice());
     array
 }
 

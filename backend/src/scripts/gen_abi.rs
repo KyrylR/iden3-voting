@@ -1,5 +1,6 @@
-use backend::config::make;
 use ethers::contract::Abigen;
+
+use backend::config::make;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let config = make("Settings.yaml").unwrap();

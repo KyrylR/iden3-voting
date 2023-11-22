@@ -1,4 +1,3 @@
-#![allow(clippy::all)]
 pub use voting::*;
 /// This module was auto-generated with ethers-rs Abigen.
 /// More information at: <https://github.com/gakonst/ethers-rs>
@@ -8,7 +7,8 @@ pub use voting::*;
     clippy::upper_case_acronyms,
     clippy::type_complexity,
     dead_code,
-    non_camel_case_types
+    non_camel_case_types,
+    clippy::all
 )]
 pub mod voting {
     const _: () = {
@@ -528,6 +528,11 @@ pub mod voting {
                                 kind: ::ethers::core::abi::ethabi::ParamType::FixedBytes(32usize,),
                                 indexed: false,
                             },
+                            ::ethers::core::abi::ethabi::EventParam {
+                                name: ::std::borrow::ToOwned::to_owned("blockNumber"),
+                                kind: ::ethers::core::abi::ethabi::ParamType::Uint(256usize,),
+                                indexed: false,
+                            },
                         ],
                         anonymous: false,
                     },],
@@ -822,11 +827,15 @@ pub mod voting {
         Eq,
         Hash,
     )]
-    #[ethevent(name = "AddedCommitment", abi = "AddedCommitment(uint256,bytes32)")]
+    #[ethevent(
+        name = "AddedCommitment",
+        abi = "AddedCommitment(uint256,bytes32,uint256)"
+    )]
     pub struct AddedCommitmentFilter {
         #[ethevent(indexed)]
         pub proposal_id: ::ethers::core::types::U256,
         pub commitment: [u8; 32],
+        pub block_number: ::ethers::core::types::U256,
     }
     #[derive(
         Clone,
