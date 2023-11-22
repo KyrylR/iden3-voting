@@ -1,7 +1,6 @@
 use ethers::utils::hex;
 use ff::{from_hex, PrimeField};
 use poseidon_rs::{Fr, Poseidon};
-
 use rs_merkle::Hasher;
 
 #[derive(Clone)]
@@ -55,8 +54,9 @@ pub fn hash_str(item: &str) -> [u8; 32] {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use rs_merkle::MerkleTree;
+
+    use super::*;
 
     #[test]
     fn test_hash() {

@@ -15,7 +15,7 @@ rand = "0.4"
 serde = { version = "1.0.193", features = ["derive"] }
 tokio = { version = "1.34.0", features = ["macros", "rt-multi-thread"] }
 lazy_static = "1.4.0"
-rs_merkle = { git = "https://github.com/KyrylR/rs-merkle.git", rev = "387a556dd3b81af4fd9b6f7bf39e9d6a9412fb7c" }
+rs_merkle = { git = "https://github.com/KyrylR/rs-merkle.git", rev = "0bc2d677b7a9e12bbd5dd67dd23b885adcdc69fa" }
 
 
 [[bin]]

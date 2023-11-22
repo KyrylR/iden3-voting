@@ -2722,7 +2722,7 @@ dependencies = [
 [[package]]
 name = "rs_merkle"
 version = "1.4.1"
-source = "git+https://github.com/KyrylR/rs-merkle.git?rev=387a556dd3b81af4fd9b6f7bf39e9d6a9412fb7c#387a556dd3b81af4fd9b6f7bf39e9d6a9412fb7c"
+source = "git+https://github.com/KyrylR/rs-merkle.git?rev=0bc2d677b7a9e12bbd5dd67dd23b885adcdc69fa#0bc2d677b7a9e12bbd5dd67dd23b885adcdc69fa"
 dependencies = [
  "sha2",
 ]
