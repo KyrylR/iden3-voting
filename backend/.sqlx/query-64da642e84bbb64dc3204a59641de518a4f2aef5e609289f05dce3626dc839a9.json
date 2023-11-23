@@ -1,0 +1,12 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "CREATE TABLE commitments\n        (\n            id           SERIAL PRIMARY KEY,\n            proposal_id  INT          NOT NULL,\n            commitment   VARCHAR(255) NOT NULL,\n            block_number INT       NOT NULL\n        )",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": []
+  },
+  "hash": "64da642e84bbb64dc3204a59641de518a4f2aef5e609289f05dce3626dc839a9"
+}
