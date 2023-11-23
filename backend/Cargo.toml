@@ -8,7 +8,7 @@ edition = "2021"
 [dependencies]
 axum = "0.6.20"
 config = "0.13.3"
-ethers = { version = "2.0.11", features = ["rustls"] }
+ethers = { version = "2.0.11", features = ["openssl", "ws"] }
 ff = {package="ff_ce" , version="0.11", features = ["derive"]}
 poseidon-rs = "0.0.10"
 rand = "0.4"
@@ -18,7 +18,6 @@ lazy_static = "1.4.0"
 rs_merkle = { git = "https://github.com/KyrylR/rs-merkle.git", rev = "0bc2d677b7a9e12bbd5dd67dd23b885adcdc69fa" }
 sqlx = { version = "0.7.2", features = ["runtime-tokio", "postgres", "sqlx-postgres"] }
 dotenvy = { version = "0.15.0", default-features = false }
-
 
 [[bin]]
 name = "backend"

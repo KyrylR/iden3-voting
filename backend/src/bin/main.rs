@@ -1,15 +1,17 @@
 use std::error::Error;
 use std::sync::Arc;
 
-use axum::{Json, Router, routing::get};
 use axum::http::StatusCode;
 use axum::response::IntoResponse;
+use axum::{routing::get, Json, Router};
 use ethers::utils::__serde_json::json;
 use rs_merkle::MerkleTree;
 use tokio::sync::Mutex;
 
 use backend::config::make;
-use backend::db::{fetch_all_commitments, fetch_max_block_number, get_database_pool};
+use backend::db::{
+    fetch_all_commitments, fetch_max_block_number, get_database_pool, init_migration,
+};
 use backend::handlers::{handle_proof, ProofRequest};
 use backend::listener::listen_commitments;
 use backend::poseidon_mt::{commitment_to_slice, hash_str, PoseidonHasher};
@@ -77,7 +79,11 @@ fn build_mt() -> MerkleTree<PoseidonHasher> {
 pub async fn init_mt() -> Result<(usize, MerkleTree<PoseidonHasher>), Box<dyn Error>> {
     match get_database_pool().await {
         Ok(pool) => {
-            println!("Connected to database. Syncing Merkle Tree...");
+            println!("Connected to database. Running migrations...");
+
+            init_migration(&pool).await?;
+
+            println!("Syncing Merkle Tree...");
 
             let mut mt = build_mt();
 

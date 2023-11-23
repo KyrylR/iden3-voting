@@ -1,7 +1,7 @@
 use std::error::Error;
 
-use sqlx::{Connection, Pool, Postgres, sqlx_macros};
 use sqlx::postgres::PgPoolOptions;
+use sqlx::{sqlx_macros, Connection, Pool, Postgres};
 
 #[derive(Debug)]
 pub struct Commitment {
@@ -21,6 +21,52 @@ pub async fn get_database_pool() -> Result<Pool<Postgres>, Box<dyn Error>> {
         .await?;
 
     Ok(pool)
+}
+
+pub async fn init_migration(pool: &Pool<Postgres>) -> Result<(), Box<dyn Error>> {
+    let exists = check_table_exists(&pool.clone()).await?;
+
+    if !exists {
+        println!("Running migration");
+
+        create_table(&pool.clone()).await?;
+
+        assert!(check_table_exists(&pool.clone()).await?);
+    }
+
+    Ok(())
+}
+
+async fn check_table_exists(conn: &Pool<Postgres>) -> Result<bool, Box<dyn Error>> {
+    let table_exists = sqlx::query!(
+        r#"SELECT EXISTS (
+            SELECT FROM information_schema.tables
+            WHERE  table_schema = 'public'
+            AND    table_name   = 'commitments'
+        ) AS table_exists"#
+    )
+    .fetch_one(conn)
+    .await?
+    .table_exists
+    .unwrap();
+
+    Ok(table_exists)
+}
+
+async fn create_table(conn: &Pool<Postgres>) -> Result<(), Box<dyn Error>> {
+    sqlx::query!(
+        r#"CREATE TABLE commitments
+        (
+            id           SERIAL PRIMARY KEY,
+            proposal_id  INT          NOT NULL,
+            commitment   VARCHAR(255) NOT NULL,
+            block_number INT       NOT NULL
+        )"#,
+    )
+    .execute(conn)
+    .await?;
+
+    Ok(())
 }
 
 pub async fn fetch_all_commitments(

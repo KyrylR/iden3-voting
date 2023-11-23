@@ -12,9 +12,7 @@ pub use voting::*;
 )]
 pub mod voting {
     const _: () = {
-        ::core::include_bytes!(
-            "/home/inastro/Desktop/University/Masters_2023_sem_1/iden3-voting/backend/abi/Voting.json",
-        );
+        ::core::include_bytes!("abi/Voting.json",);
     };
     #[allow(deprecated)]
     fn __abi() -> ::ethers::core::abi::Abi {

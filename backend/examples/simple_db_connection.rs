@@ -20,7 +20,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     println!("Connected to database");
 
-    let migrator = Migrator::new(Path::new("src/db/migrations")).await?;
+    let migrator = Migrator::new(Path::new("db/test_migrations")).await?;
 
     let mut conn = pool.acquire().await?;
 
@@ -40,6 +40,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
         println!("Block Number: {:?}", commitment.block_number);
         println!("==========================")
     });
+
+    conn.close().await?;
 
     Ok(())
 }

@@ -7,4 +7,3 @@ pub mod listener;
 pub mod poseidon_mt;
 pub mod utils;
 pub mod voting;
-

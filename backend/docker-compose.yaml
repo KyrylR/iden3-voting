@@ -1,0 +1,26 @@
+version: '3.8'
+services:
+  app:
+    build: .
+    volumes:
+      - .:/usr/src/myapp
+      - ./Settings.yaml:/usr/src/myapp/Settings.yaml
+    environment:
+      - DATABASE_URL=postgres://postgres:password@db/myapp
+    depends_on:
+      - db
+    ports:
+      - "3000:3000"
+
+  db:
+    image: postgres:13
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: myapp
+    ports:
+      - "5432:5432"
+
+volumes:
+  postgres_data:

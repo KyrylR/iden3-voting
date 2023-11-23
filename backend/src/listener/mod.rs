@@ -2,7 +2,7 @@ use std::error::Error;
 use std::sync::Arc;
 
 use ethers::abi::Address;
-use ethers::providers::{Http, Provider, StreamExt};
+use ethers::providers::{Provider, StreamExt, Ws};
 use ff::hex;
 use rs_merkle::MerkleTree;
 use tokio::sync::Mutex;
@@ -10,7 +10,7 @@ use tokio::sync::Mutex;
 use crate::config::{make, Settings};
 use crate::db::{get_database_pool, insert_one_commitment};
 use crate::poseidon_mt::PoseidonHasher;
-use crate::voting::{AddedCommitmentFilter, Voting};
+use crate::voting::Voting;
 
 pub async fn listen_commitments(
     from_block: usize,
@@ -18,7 +18,7 @@ pub async fn listen_commitments(
 ) -> Result<(), Box<dyn Error>> {
     let config = make("Settings.yaml")?;
 
-    let contract = get_voting_instance(config.clone())?;
+    let contract = get_voting_instance(config.clone()).await?;
 
     let start_block = if from_block == 0 {
         config.default_from_block
@@ -26,10 +26,8 @@ pub async fn listen_commitments(
         from_block as u64
     };
 
-    let events = contract
-        .event::<AddedCommitmentFilter>()
-        .from_block(start_block);
-    let mut stream = events.stream().await?;
+    let filter = contract.added_commitment_filter().from_block(start_block);
+    let mut stream = filter.subscribe().await?;
 
     println!(
         "Listening for events; RPC URL: {}, contract address: {}, from block: {}",
@@ -69,12 +67,12 @@ pub async fn listen_commitments(
 pub async fn test_listen() -> Result<(), Box<dyn Error>> {
     let config = make("Settings.yaml")?;
 
-    let contract = get_voting_instance(config.clone())?;
+    let contract = get_voting_instance(config.clone()).await?;
 
-    let events = contract
-        .event::<AddedCommitmentFilter>()
+    let filter = contract
+        .added_commitment_filter()
         .from_block(config.default_from_block);
-    let mut stream = events.stream().await?;
+    let mut stream = filter.subscribe().await?;
 
     println!(
         "Listening for events; RPC URL: {}, contract address: {}, from block: {}",
@@ -97,9 +95,12 @@ pub async fn test_listen() -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-fn get_voting_instance(config: Settings) -> Result<Voting<Provider<Http>>, Box<dyn Error>> {
+async fn get_voting_instance(config: Settings) -> Result<Voting<Provider<Ws>>, Box<dyn Error>> {
     let address = config.contract_address.parse::<Address>()?;
-    let provider: Provider<Http> = Provider::<Http>::try_from(config.rpc_url)?;
+    let provider = Provider::<Ws>::connect(config.rpc_url.as_str())
+        .await
+        .unwrap();
+
     let client = Arc::new(provider);
 
     Ok(Voting::new(address, client))

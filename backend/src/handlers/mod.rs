@@ -1,8 +1,8 @@
 use std::sync::Arc;
 
 use axum::http::StatusCode;
-use axum::Json;
 use axum::response::{IntoResponse, Response};
+use axum::Json;
 use ethers::utils::__serde_json::json;
 use ethers::utils::hex;
 use rs_merkle::MerkleTree;
