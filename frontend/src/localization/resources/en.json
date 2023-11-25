@@ -1,4 +1,7 @@
 {
+  "common": {
+    "date-format": "dd-MM-yyyy HH:mm"
+  },
   "validations": {
     "field-error_required": "Please fill out this field",
     "field-error_email": "Field must be a valid email"
@@ -42,5 +45,27 @@
     "metamask-not-installed": "MetaMask is not installed. Please install it to continue.",
     "address-copied": "Address copied to clipboard!",
     "address-copy-failed": "Failed to copy address to clipboard!"
+  },
+  "voting-header": {
+    "title": "Governance",
+    "create-proposal": "Create Proposal"
+  },
+  "voting-stats": {
+    "title": "Voting Stats",
+    "total-secrets-number": "Total Secrets",
+    "active-secrets-number": "Active Secrets",
+    "generate-secrets": "Generate Secrets"
+  },
+  "proposal-card": {
+    "id": "Proposal ID",
+    "title": "Governance Proposal",
+    "quorum": "Quorum",
+    "left-quorum": "Left to Quorum",
+    "voting-end-time": "Voting end time"
+  },
+  "voting-status": {
+    "commitment": "Commitment",
+    "voting": "Voting",
+    "execution": "Execution"
   }
 }

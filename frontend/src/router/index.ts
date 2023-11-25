@@ -23,6 +23,11 @@ const routes: Array<RouteRecordRaw> = [
     name: ROUTE_NAMES.complexForm,
     component: () => import('@/forms/ComplexForm.vue'),
   },
+  {
+    path: '/voting',
+    name: ROUTE_NAMES.voting,
+    component: () => import('@/pages/VotingPage.vue'),
+  },
 ]
 
 const router = createRouter({

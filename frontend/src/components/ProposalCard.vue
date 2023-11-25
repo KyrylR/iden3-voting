@@ -1,0 +1,157 @@
+<template>
+  <router-link
+    :to="{
+      path: proposalLink,
+      state: { from: 'list' },
+    }"
+    class="proposal-card"
+  >
+    <div class="proposal-card__head">
+      <p class="proposal-card__id">
+        <span>{{ $t('proposal-card.id') }}</span>
+        <span>{{ proposal!.id }}</span>
+      </p>
+      <tag v-if="proposal!.status" :state="statusState" :class-name="``">
+        <!-- eslint-disable-next-line vue-i18n/no-dynamic-keys -->
+        {{ $t(proposalStatus) }}
+      </tag>
+    </div>
+    <h2 class="proposal-card__title" :title="$t('proposal-card.title')">
+      {{ $t('proposal-card.title') }}
+    </h2>
+    <div class="proposal-card__voting">
+      <div class="proposal-card__voting__quorum">
+        <div class="proposal-card__quorum__current">
+          {{
+            $t('proposal-card.quorum') +
+            ' ' +
+            formatPercent(singlePrecision(currentQuorum))
+          }}
+        </div>
+        <div class="proposal-card__quorum__left">
+          {{
+            $t('proposal-card.left-quorum') +
+            ' ' +
+            formatPercent(singlePrecision(leftQuorum))
+          }}
+        </div>
+      </div>
+      <progress-tab
+        :value="Number(singlePrecision(currentQuorum))"
+        :max="Number(singlePrecision(requiredQuorum))"
+        class="proposal-card__voting__progress"
+      />
+      <voting-periods :proposal="proposal" />
+    </div>
+  </router-link>
+</template>
+
+<script lang="ts" setup>
+import { computed } from 'vue'
+import { LocationAsRelativeRaw } from 'vue-router'
+
+import Tag from '@/components/utils/Tag.vue'
+
+import { ProposalBaseInfo } from '@/typings/proposals'
+import {
+  bigIntMax,
+  getCurrentQuorum,
+  getProposalStatus,
+  getStatusState,
+} from '@/utils/proposals'
+import { formatPercent, singlePrecision } from '@/helpers'
+
+import ProgressTab from '@/components/utils/ProgressTab.vue'
+import VotingPeriods from '@/components/utils/VotingPeriods.vue'
+
+const props = withDefaults(
+  defineProps<{
+    proposal?: ProposalBaseInfo
+    route?: LocationAsRelativeRaw
+  }>(),
+  {
+    proposal: undefined,
+    route: undefined,
+  },
+)
+
+const proposalLink = computed(
+  () => `/governance/proposal/${props.proposal!.id}`,
+)
+const proposalStatus = computed(() => getProposalStatus(props.proposal!))
+const statusState = computed(() => getStatusState(proposalStatus.value))
+
+const currentQuorum = computed(() => getCurrentQuorum(props.proposal!))
+const requiredQuorum = computed(() => props.proposal!.params.requiredQuorum)
+
+const leftQuorum = computed(() => {
+  return bigIntMax(requiredQuorum.value - currentQuorum.value, 0n).toString()
+})
+</script>
+
+<style lang="scss" scoped>
+.proposal-card {
+  display: block;
+  border: #{toRem(1)} solid var(--secondary-dark);
+  background-color: var(--app-button-filled-bg);
+  color: var(--app-button-text);
+  border-radius: toRem(14);
+  padding: var(--field-padding);
+  transition: background-color 0.3s ease, box-shadow 0.3s ease,
+    border-color 0.3s ease;
+
+  &:hover,
+  &:focus-visible {
+    border-color: #b0bec5;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  &__head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+
+  &__id {
+    color: #757575;
+    font-size: 0.9rem;
+    display: flex;
+    gap: 8px;
+  }
+
+  &__title {
+    font-size: toRem(24);
+    font-weight: bold;
+    color: #424242;
+    margin: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .proposal-card__voting {
+    margin-top: toRem(18);
+    display: flex;
+    flex-direction: column;
+    gap: toRem(8);
+
+    &__quorum {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: toRem(8) 0;
+
+      &__current,
+      &__left {
+        font-size: toRem(14);
+        color: var(--text-secondary-color);
+      }
+    }
+
+    &__progress {
+      width: 100%;
+    }
+  }
+}
+</style>

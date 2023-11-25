@@ -79,14 +79,23 @@
   --app-padding-right: #{toRem(64)};
   --app-padding-left: #{toRem(64)};
 
+  --voting-app-padding-right: #{toRem(128)};
+  --voting-app-padding-left: #{toRem(128)};
+
   @include respond-to(xmedium) {
     --app-padding-right: #{toRem(32)};
     --app-padding-left: #{toRem(32)};
+
+    --voting-app-padding-right: #{toRem(64)};
+    --voting-app-padding-left: #{toRem(64)};
   }
 
   @include respond-to(small) {
     --app-padding-right: #{toRem(12)};
     --app-padding-left: #{toRem(12)};
+
+    --voting-app-padding-right: #{toRem(12)};
+    --voting-app-padding-left: #{toRem(12)};
   }
 
   /* --------------------------------------- */

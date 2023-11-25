@@ -16,6 +16,13 @@
       :route="{ name: $routes.complexForm }"
     />
 
+    <app-button
+      class="app-navbar__link"
+      :scheme="'flat'"
+      :text="$routes.voting"
+      :route="{ name: $routes.voting }"
+    />
+
     <!-- MetaMask Connection Button -->
     <app-button
       v-if="!userAddress"
