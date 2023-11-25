@@ -9,9 +9,4 @@ for further information about branching and tagging conventions.
 
 ## [Unreleased]
 
-## [1.0.0-rc.0] - 2021-12-23
-#### Under the hood changes
-- Forked from [vue-template](https://gitlab.com/distributed_lab/frontend/vue-template)
-
-[Unreleased]: https://gitlab.com/distributed_lab/frontend/vue-template/compare/1.0.0-rc.0...main
-[1.0.0-rc.0]: https://gitlab.com/distributed_lab/frontend/vue-template/tags/1.0.0-rc.0
+- Added MetaMask connect button
