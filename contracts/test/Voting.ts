@@ -62,7 +62,7 @@ describe("Voting", () => {
 
       await voting.createProposal("remark", proposalData, "0x");
 
-      const proposal = await voting.proposals(0);
+      const proposal = await voting.proposals(1);
 
       expect(proposal.remark).to.equal("remark");
       expect(proposal.params.commitmentEndTime).to.equal(nextBlockTime + proposalData.commitmentPeriod);
@@ -124,7 +124,7 @@ describe("Voting", () => {
     beforeEach(async () => {
       await voting.createProposal("remark", DEFAULT_DATA, "0x");
 
-      proposalId = 0;
+      proposalId = 1;
     });
 
     it("should commit on proposal", async () => {
@@ -167,7 +167,7 @@ describe("Voting", () => {
 
       await expect(
         voting.commitOnProposal(proposalId, commitment, { value: ethers.parseEther("1") })
-      ).to.be.revertedWith("Voting: commitment period is over");
+      ).to.be.revertedWith("Voting: status is not COMMITMENT");
     });
   });
 
@@ -228,7 +228,7 @@ describe("Voting", () => {
     beforeEach(async () => {
       await voting.createProposal("remark", DEFAULT_DATA, "0x");
 
-      proposalId = 0;
+      proposalId = 1;
 
       pair = generateSecrets();
       commitment = getCommitment(pair);
@@ -344,7 +344,7 @@ describe("Voting", () => {
     it("should not vote before commitment period", async () => {
       await voting.createProposal("remark", DEFAULT_DATA, "0x");
 
-      proposalId = 1;
+      proposalId = 2;
 
       const newPair = generateSecrets();
       const newCommitment = getCommitment(newPair);
@@ -366,8 +366,8 @@ describe("Voting", () => {
       );
 
       await expect(
-        voting.voteOnProposal(1, dataToVerify.nullifierHash, await voting.getRoot(), dataToVerify.formattedProof, 0)
-      ).to.be.revertedWith("Voting: commitment period is not over");
+        voting.voteOnProposal(proposalId, dataToVerify.nullifierHash, await voting.getRoot(), dataToVerify.formattedProof, 0)
+      ).to.be.revertedWith("Voting: status is not VOTING");
     });
 
     it("should not vote after voting period", async () => {
@@ -389,7 +389,7 @@ describe("Voting", () => {
           dataToVerify.formattedProof,
           0
         )
-      ).to.be.revertedWith("Voting: voting period is over");
+      ).to.be.revertedWith("Voting: status is not VOTING");
     });
   });
 
@@ -416,7 +416,7 @@ describe("Voting", () => {
         votingInterface.encodeFunctionData("distributeFunds", [USER1.address, ethers.parseEther("1").toString()])
       );
 
-      proposalId = 0;
+      proposalId = 1;
 
       pair = generateSecrets();
       commitment = getCommitment(pair);
@@ -477,15 +477,15 @@ describe("Voting", () => {
         votingInterface.encodeFunctionData("distributeFunds", [USER1.address, ethers.parseEther("1").toString()])
       );
 
-      proposalId = 1;
+      proposalId = 2;
 
-      await expect(voting.executeProposal(proposalId)).to.be.revertedWith("Voting: voting period is not over");
+      await expect(voting.executeProposal(proposalId)).to.be.revertedWith("Voting: status is not EXECUTION");
     });
 
     it("should not execute proposal twice", async () => {
       await voting.executeProposal(proposalId);
 
-      await expect(voting.executeProposal(proposalId)).to.be.revertedWith("Voting: proposal is already executed");
+      await expect(voting.executeProposal(proposalId)).to.be.revertedWith("Voting: status is not EXECUTION");
     });
 
     it("should not execute proposal with less than required majority", async () => {
@@ -505,7 +505,7 @@ describe("Voting", () => {
         votingInterface.encodeFunctionData("distributeFunds", [USER1.address, ethers.parseEther("1").toString()])
       );
 
-      proposalId = 1;
+      proposalId = 2;
 
       const newPair = generateSecrets();
       const newCommitment = getCommitment(newPair);
@@ -538,7 +538,7 @@ describe("Voting", () => {
 
       await time.increase(101);
 
-      await expect(voting.executeProposal(proposalId)).to.be.revertedWith("Voting: required majority is not reached");
+      await expect(voting.executeProposal(proposalId)).to.be.revertedWith("Voting: status is not EXECUTION");
     });
 
     it("should not execute proposal with less than required quorum", async () => {
@@ -558,7 +558,7 @@ describe("Voting", () => {
         votingInterface.encodeFunctionData("distributeFunds", [USER1.address, ethers.parseEther("1").toString()])
       );
 
-      proposalId = 1;
+      proposalId = 2;
 
       const newPair = generateSecrets();
       const newCommitment = getCommitment(newPair);
@@ -573,7 +573,7 @@ describe("Voting", () => {
 
       await time.increase(201);
 
-      await expect(voting.executeProposal(proposalId)).to.be.revertedWith("Voting: required quorum is not reached");
+      await expect(voting.executeProposal(proposalId)).to.be.revertedWith("Voting: status is not EXECUTION");
     });
 
     it("should not execute proposal if it fails", async () => {
@@ -593,7 +593,7 @@ describe("Voting", () => {
         votingInterface.encodeFunctionData("distributeFunds", [USER1.address, ethers.parseEther("10").toString()])
       );
 
-      proposalId = 1;
+      proposalId = 2;
 
       const newPair = generateSecrets();
       const newCommitment = getCommitment(newPair);
@@ -640,7 +640,7 @@ describe("Voting", () => {
 
       await voting.createProposal("remark", proposalData, "0x");
 
-      proposalId = 1;
+      proposalId = 2;
 
       const newPair = generateSecrets();
       const newCommitment = getCommitment(newPair);
@@ -687,11 +687,77 @@ describe("Voting", () => {
 
       await voting.createProposal("remark", proposalData, "0x");
 
-      proposalId = 1;
+      proposalId = 2;
 
       await time.increase(201);
 
-      await expect(voting.executeProposal(proposalId)).to.be.revertedWith("Voting: required quorum is not reached");
+      await expect(voting.executeProposal(proposalId)).to.be.revertedWith("Voting: status is not EXECUTION");
+    });
+  });
+
+  describe("#getters", () => {
+    let proposalId: number;
+
+    let pair: SecretPair;
+    let commitment: string;
+
+    beforeEach(async () => {
+      const proposalData = {
+        commitmentPeriod: 100n,
+        votingPeriod: 100n,
+        proposalExecutionPeriod: 100n,
+        requiredQuorum: 100n,
+        requiredMajority: 100n,
+      };
+
+      const votingInterface = Voting__factory.createInterface();
+
+      await voting.createProposal(
+        "remark",
+        proposalData,
+        votingInterface.encodeFunctionData("distributeFunds", [USER1.address, ethers.parseEther("1").toString()])
+      );
+
+      proposalId = 1;
+
+      pair = generateSecrets();
+      commitment = getCommitment(pair);
+
+      await voting.commitOnProposal(proposalId, commitment, { value: ethers.parseEther("1").toString() });
+
+      localMerkleTree = buildSparseMerkleTree(
+        poseidonHash,
+        [getBytes32PoseidonHash(commitment)],
+        await voting.getHeight()
+      );
+
+      await time.increase(101);
+
+      const dataToVerify = await getZKP(
+        pair,
+        OWNER.address,
+        proposalId.toString(),
+        await voting.getRoot(),
+        localMerkleTree
+      );
+
+      await voting.voteOnProposal(
+        proposalId,
+        dataToVerify.nullifierHash,
+        await voting.getRoot(),
+        dataToVerify.formattedProof,
+        1
+      );
+
+      await time.increase(101);
+    });
+
+    it("should return correct statuses", async () => {
+      expect(await voting.getProposalStatus(0)).to.be.equal(0n, "Should be None");
+
+      await time.increase(101);
+
+      expect(await voting.getProposalStatus(proposalId)).to.be.equal(4n, "Should be Rejected");
     });
   });
 });

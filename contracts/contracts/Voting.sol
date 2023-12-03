@@ -23,6 +23,16 @@ contract Voting is PoseidonIMT {
         AGAINST
     }
 
+    // Enum to represent the proposal status: Commitment, Voting, Execution, Rejected, Executed.
+    enum ProposalStatus {
+        NONE,
+        COMMITMENT,
+        VOTING,
+        EXECUTION,
+        REJECTED,
+        EXECUTED
+    }
+
     /**
      * @notice Struct to store proposal information.
      * @param id Unique identifier of the proposal.
@@ -188,7 +198,7 @@ contract Voting is PoseidonIMT {
             "Voting: proposal execution period must be greater than 0"
         );
 
-        id_ = proposalsCount++;
+        id_ = ++proposalsCount;
 
         ProposalInfo storage proposal_ = proposals[id_];
 
@@ -232,10 +242,8 @@ contract Voting is PoseidonIMT {
 
         ProposalInfo storage proposal_ = proposals[proposalId_];
 
-        require(
-            block.timestamp < proposal_.params.commitmentEndTime,
-            "Voting: commitment period is over"
-        );
+        ProposalStatus status_ = getProposalStatus(proposalId_);
+        require(status_ == ProposalStatus.COMMITMENT, "Voting: status is not COMMITMENT");
 
         add(commitment_);
         commitments[commitment_] = true;
@@ -293,11 +301,8 @@ contract Voting is PoseidonIMT {
 
         ProposalInfo storage proposal_ = proposals[proposalId_];
 
-        require(
-            block.timestamp >= proposal_.params.commitmentEndTime,
-            "Voting: commitment period is not over"
-        );
-        require(block.timestamp < proposal_.params.votingEndTime, "Voting: voting period is over");
+        ProposalStatus status_ = getProposalStatus(proposalId_);
+        require(status_ == ProposalStatus.VOTING, "Voting: status is not VOTING");
 
         if (votingOption_ == VotingOption.FOR) {
             ++proposal_.counters.votesFor;
@@ -324,27 +329,8 @@ contract Voting is PoseidonIMT {
     function executeProposal(uint256 proposalId_) external {
         ProposalInfo storage proposal_ = proposals[proposalId_];
 
-        require(
-            block.timestamp >= proposal_.params.votingEndTime,
-            "Voting: voting period is not over"
-        );
-        require(!proposal_.isExecuted, "Voting: proposal is already executed");
-
-        require(
-            _calculatePercentage(
-                proposal_.counters.votesFor + proposal_.counters.votesAgainst,
-                proposal_.counters.commitments
-            ) >= proposal_.params.requiredQuorum,
-            "Voting: required quorum is not reached"
-        );
-
-        require(
-            _calculatePercentage(
-                proposal_.counters.votesFor,
-                proposal_.counters.votesFor + proposal_.counters.votesAgainst
-            ) >= proposal_.params.requiredMajority,
-            "Voting: required majority is not reached"
-        );
+        ProposalStatus status_ = getProposalStatus(proposalId_);
+        require(status_ == ProposalStatus.EXECUTION, "Voting: status is not EXECUTION");
 
         proposal_.isExecuted = true;
 
@@ -354,6 +340,48 @@ contract Voting is PoseidonIMT {
 
         (bool success_, ) = address(this).call(proposal_.callData);
         require(success_, "Voting: proposal execution failed");
+    }
+
+    function getProposalStatus(uint256 proposalId_) public view returns (ProposalStatus) {
+        ProposalInfo storage proposal_ = proposals[proposalId_];
+
+        if (proposal_.id == 0) {
+            return ProposalStatus.NONE;
+        }
+
+        if (proposal_.isExecuted) {
+            return ProposalStatus.EXECUTED;
+        }
+
+        if (block.timestamp < proposal_.params.commitmentEndTime) {
+            return ProposalStatus.COMMITMENT;
+        }
+
+        if (block.timestamp < proposal_.params.votingEndTime) {
+            return ProposalStatus.VOTING;
+        }
+
+        uint256 quorum_ = _calculatePercentage(
+            proposal_.counters.votesFor + proposal_.counters.votesAgainst,
+            proposal_.counters.commitments
+        );
+        uint256 majority_ = _calculatePercentage(
+            proposal_.counters.votesFor,
+            proposal_.counters.votesFor + proposal_.counters.votesAgainst
+        );
+
+        if (
+            quorum_ < proposal_.params.requiredQuorum ||
+            majority_ < proposal_.params.requiredMajority
+        ) {
+            return ProposalStatus.REJECTED;
+        }
+
+        if (block.timestamp < proposal_.params.proposalExecutionEndTime) {
+            return ProposalStatus.EXECUTION;
+        }
+
+        return ProposalStatus.REJECTED;
     }
 
     function _calculatePercentage(uint256 part, uint256 amount) internal pure returns (uint256) {
