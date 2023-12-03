@@ -2,12 +2,7 @@
   <div class="app-navbar">
     <app-logo class="app-navbar__logo" />
 
-    <app-button
-      class="app-navbar__link"
-      :scheme="'flat'"
-      :text="$routes.uiKit"
-      :route="{ name: $routes.uiKit }"
-    />
+    <app-button class="app-navbar__link" :scheme="'flat'" :text="$routes.uiKit" :route="{ name: $routes.uiKit }" />
 
     <app-button
       class="app-navbar__link"
@@ -16,12 +11,7 @@
       :route="{ name: $routes.complexForm }"
     />
 
-    <app-button
-      class="app-navbar__link"
-      :scheme="'flat'"
-      :text="$routes.voting"
-      :route="{ name: $routes.voting }"
-    />
+    <app-button class="app-navbar__link" :scheme="'flat'" :text="$routes.voting" :route="{ name: $routes.voting }" />
 
     <!-- MetaMask Connection Button -->
     <app-button
@@ -33,17 +23,12 @@
     />
 
     <!-- Display User Address -->
-    <app-button
-      v-if="userAddress"
-      :scheme="'flat'"
-      :text="userAddress"
-      @click="handleAddressClick"
-    />
+    <app-button v-if="userAddress" :scheme="'flat'" :text="truncatedAddress" @click="handleAddressClick" />
   </div>
 </template>
 
 <script lang="ts" setup>
-import { onMounted, onUnmounted, ref } from 'vue'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { TYPE, useToast } from 'vue-toastification'
 
@@ -57,6 +42,17 @@ const toast = useToast()
 const { t } = useI18n()
 
 const userAddress = ref<string | null>(null)
+
+const truncatedAddress = computed(() => {
+  if (!userAddress.value) return ''
+  const length = userAddress.value.length
+  const startChars = 6
+  const endChars = 4
+  if (length <= startChars + endChars) {
+    return userAddress.value
+  }
+  return `${userAddress.value.substring(0, startChars)}...${userAddress.value.substring(length - endChars)}`
+})
 
 const handleAccountsChanged = (accounts: string[]) => {
   userAddress.value = accounts[0] || null

@@ -12,19 +12,13 @@
       :icon-left="$icons.plus"
       :scheme="'filled'"
       :text="$t('voting-header.create-proposal')"
-      @click="handleProposalButtonClick"
+      :route="{ name: $routes.createProposal }"
     />
   </header>
 </template>
 
 <script lang="ts" setup>
 import AppButton from '@/common/AppButton.vue'
-
-import { bus, BUS_EVENTS } from '@/helpers'
-
-function handleProposalButtonClick() {
-  bus.emit(BUS_EVENTS.success, 'Proposal creation form opened')
-}
 </script>
 
 <style lang="scss" scoped>
@@ -33,8 +27,7 @@ function handleProposalButtonClick() {
   align-items: center;
   justify-content: space-between;
   gap: toRem(24);
-  padding: toRem(36) var(--voting-app-padding-left) toRem(36)
-    var(--voting-app-padding-right);
+  padding: toRem(36) var(--voting-app-padding-left) toRem(36) var(--voting-app-padding-right);
   background: var(--background-primary-main);
   border-bottom: var(--border-primary-main);
 

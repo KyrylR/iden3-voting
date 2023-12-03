@@ -132,10 +132,7 @@
   --field-padding-right: #{toRem(16)};
   --field-padding-bottom: #{toRem(18)};
   --field-padding-left: #{toRem(14)};
-  --field-padding:
-    var(--field-padding-top)
-    var(--field-padding-right)
-    var(--field-padding-bottom)
+  --field-padding: var(--field-padding-top) var(--field-padding-right) var(--field-padding-bottom)
     var(--field-padding-left);
 
   --field-error: var(--error-main);

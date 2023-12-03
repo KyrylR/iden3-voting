@@ -50,7 +50,7 @@
 }
 
 .noscript__link:hover {
-  box-shadow: 0px 4px 8px 3px rgba(60,64,67,.15);
+  box-shadow: 0px 4px 8px 3px rgba(60, 64, 67, 0.15);
 }
 
 .noscript__browser-name {

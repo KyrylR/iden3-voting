@@ -1,8 +1,5 @@
 <template>
-  <modal
-    v-model:is-shown="isModalShown"
-    :is-close-by-click-outside="isCloseByClickOutside"
-  >
+  <modal v-model:is-shown="isModalShown" :is-close-by-click-outside="isCloseByClickOutside">
     <template #default="{ modal }">
       <div class="basic-modal__pane">
         <div class="basic-modal__header">
@@ -14,12 +11,7 @@
               {{ subtitle }}
             </span>
           </div>
-          <app-button
-            class="basic-modal__close-btn"
-            scheme="none"
-            :icon-right="ICON_NAMES.x"
-            @click="modal.close"
-          />
+          <app-button class="basic-modal__close-btn" scheme="none" :icon-right="ICON_NAMES.x" @click="modal.close" />
         </div>
         <slot />
       </div>

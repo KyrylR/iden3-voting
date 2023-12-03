@@ -50,8 +50,7 @@ export default defineConfig(({ mode }) => {
         },
         typescript: true,
         eslint: {
-          lintCommand:
-            'eslint "{src,config}/**/*.{vue,js,ts}" --cache --max-warnings=0',
+          lintCommand: 'eslint "{src,config}/**/*.{vue,js,ts}" --cache --max-warnings=0',
         },
       }),
       ...(isAnalyze
@@ -65,10 +64,7 @@ export default defineConfig(({ mode }) => {
     css: {
       preprocessorOptions: {
         scss: {
-          additionalData: [
-            '@import "@/styles/_functions.scss";',
-            '@import "@/styles/_mixins.scss";',
-          ].join(''),
+          additionalData: ['@import "@/styles/_functions.scss";', '@import "@/styles/_mixins.scss";'].join(''),
         },
       },
     },

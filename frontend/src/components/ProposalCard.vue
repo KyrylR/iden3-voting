@@ -1,11 +1,5 @@
 <template>
-  <router-link
-    :to="{
-      path: proposalLink,
-      state: { from: 'list' },
-    }"
-    class="proposal-card"
-  >
+  <router-link :to="proposalLink" v-bind="$attrs" class="proposal-card">
     <div class="proposal-card__head">
       <p class="proposal-card__id">
         <span>{{ $t('proposal-card.id') }}</span>
@@ -22,18 +16,10 @@
     <div class="proposal-card__voting">
       <div class="proposal-card__voting__quorum">
         <div class="proposal-card__quorum__current">
-          {{
-            $t('proposal-card.quorum') +
-            ' ' +
-            formatPercent(singlePrecision(currentQuorum))
-          }}
+          {{ $t('proposal-card.quorum') + ' ' + formatPercent(singlePrecision(currentQuorum)) }}
         </div>
         <div class="proposal-card__quorum__left">
-          {{
-            $t('proposal-card.left-quorum') +
-            ' ' +
-            formatPercent(singlePrecision(leftQuorum))
-          }}
+          {{ $t('proposal-card.left-quorum') + ' ' + formatPercent(singlePrecision(leftQuorum)) }}
         </div>
       </div>
       <progress-tab
@@ -53,12 +39,7 @@ import { LocationAsRelativeRaw } from 'vue-router'
 import Tag from '@/components/utils/Tag.vue'
 
 import { ProposalBaseInfo } from '@/typings/proposals'
-import {
-  bigIntMax,
-  getCurrentQuorum,
-  getProposalStatus,
-  getStatusState,
-} from '@/utils/proposals'
+import { bigIntMax, getCurrentQuorum, getProposalStatus, getStatusState } from '@/utils/proposals'
 import { formatPercent, singlePrecision } from '@/helpers'
 
 import ProgressTab from '@/components/utils/ProgressTab.vue'
@@ -75,9 +56,7 @@ const props = withDefaults(
   },
 )
 
-const proposalLink = computed(
-  () => `/governance/proposal/${props.proposal!.id}`,
-)
+const proposalLink = computed(() => `/governance/proposal/${props.proposal!.id}`)
 const proposalStatus = computed(() => getProposalStatus(props.proposal!))
 const statusState = computed(() => getStatusState(proposalStatus.value))
 
@@ -97,8 +76,7 @@ const leftQuorum = computed(() => {
   color: var(--app-button-text);
   border-radius: toRem(14);
   padding: var(--field-padding);
-  transition: background-color 0.3s ease, box-shadow 0.3s ease,
-    border-color 0.3s ease;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
 
   &:hover,
   &:focus-visible {

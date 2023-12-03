@@ -1,9 +1,9 @@
 <template>
   <div class="progress" v-bind="$attrs">
-    <div class="progress__track" :style="{ backgroundColor: '#e0e0e0' }">
+    <div class="progress__track" :style="{ backgroundColor: props.trackColor }">
       <div
         class="progress__track__value"
-        :style="{ width: valuePercentage, backgroundColor: '#4caf50' }"
+        :style="{ width: valuePercentage, backgroundColor: props.valueColor }"
       ></div>
     </div>
   </div>
@@ -16,10 +16,14 @@ const props = withDefaults(
   defineProps<{
     value: number
     max: number
+    trackColor: string
+    valueColor: string
   }>(),
   {
     value: 0,
     max: 100,
+    trackColor: '#e0e0e0',
+    valueColor: '#4caf50',
   },
 )
 

@@ -24,9 +24,24 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import('@/forms/ComplexForm.vue'),
   },
   {
-    path: '/voting',
+    path: '/not-found',
+    name: ROUTE_NAMES.notFound,
+    component: () => import('@/pages/NotFoundPage.vue'),
+  },
+  {
+    path: '/governance',
     name: ROUTE_NAMES.voting,
     component: () => import('@/pages/VotingPage.vue'),
+  },
+  {
+    path: '/governance/create-proposal',
+    name: ROUTE_NAMES.createProposal,
+    component: () => import('@/pages/CreateProposalPage.vue'),
+  },
+  {
+    path: '/governance/proposal/:id',
+    name: ROUTE_NAMES.proposal,
+    component: () => import('@/pages/VotingDetailsPage.vue'),
   },
 ]
 

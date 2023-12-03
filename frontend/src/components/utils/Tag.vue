@@ -21,11 +21,13 @@ const props = withDefaults(
 .tag {
   padding: 0.5rem 1rem;
   border-radius: 4px;
-  display: inline-block;
-  text-align: center;
+  display: flex;
+  text-align: justify;
+  align-items: center;
+  justify-content: center;
   font-weight: bold;
-  background-color: #f0f0f0; // Default background color
-  color: #333; // Default text color
+  background-color: #f0f0f0;
+  color: #333;
 
   &.pending {
     background-color: #97cdff;

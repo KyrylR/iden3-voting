@@ -67,5 +67,37 @@
     "commitment": "Commitment",
     "voting": "Voting",
     "execution": "Execution"
+  },
+  "voting-details": {
+    "back-btn": "Back"
+  },
+  "voting-details-info": {
+    "title": "Details",
+    "remark": "Remark"
+  },
+  "voting-details-header": {
+    "title": "Governance Proposal",
+    "vote": "Vote"
+  },
+  "proposal-quorum": {
+    "title": "Quorum",
+    "quorum": "Quorum",
+    "quorum-required": "Quorum Required",
+    "voted": "Voted",
+    "not-voted": "Did not vote"
+  },
+  "proposal-majority": {
+    "title": "Majority",
+    "majority": "Majority",
+    "requirement": "Requirement",
+    "voted-for": "Yes",
+    "voted-against": "No"
+  },
+  "create-voting-header": {
+    "title": "Create Proposal",
+    "submit": "Submit"
+  },
+  "create-voting-form": {
+    "remark-input": "Remark"
   }
 }

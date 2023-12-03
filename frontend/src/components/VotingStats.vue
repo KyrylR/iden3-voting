@@ -12,6 +12,7 @@
           color="success"
           :scheme="'filled'"
           :text="$t('voting-stats.generate-secrets')"
+          @click="handleGenerateButtonClick"
         />
       </div>
     </div>
@@ -39,9 +40,14 @@
 
 <script setup lang="ts">
 import AppButton from '@/common/AppButton.vue'
+import { bus, BUS_EVENTS } from '@/helpers'
 
 const totalSecretsNumber = 0
 const activeSecretsNumber = 0
+
+function handleGenerateButtonClick() {
+  bus.emit(BUS_EVENTS.success, 'Generate button clicked')
+}
 </script>
 
 <style lang="scss" scoped>
