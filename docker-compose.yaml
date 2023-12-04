@@ -1,7 +1,7 @@
 version: '3.8'
 services:
   app:
-    build: ./backend
+    image: internos/iden3backend:latest
     volumes:
       - ./backend:/usr/src/myapp
       - ./backend/Settings.yaml:/usr/src/myapp/Settings.yaml
@@ -9,13 +9,13 @@ services:
       - DATABASE_URL=postgres://postgres:password@db/myapp
     depends_on:
       - db
-    ports:
-      - "3000:3000"
 
   frontend:
-    build: ./frontend
+    image: internos/iden3frontend:latest
     ports:
       - "80:80"
+      - "443:443"
+      - "8080:8080"
     environment:
       - BUILD_VERSION=0.2
     depends_on:
@@ -28,8 +28,6 @@ services:
     environment:
       POSTGRES_PASSWORD: password
       POSTGRES_DB: myapp
-    ports:
-      - "5432:5432"
 
 volumes:
   postgres_data:
