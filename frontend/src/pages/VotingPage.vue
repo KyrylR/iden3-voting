@@ -18,7 +18,7 @@
 </template>
 
 <script lang="ts" setup>
-import { onMounted, ref } from 'vue'
+import { onMounted, onUnmounted, ref } from 'vue'
 
 import VotingHeader from '@/components/VotingHeader.vue'
 import VotingStats from '@/components/VotingStats.vue'
@@ -29,9 +29,30 @@ import { ProposalBaseInfo } from '@/types/proposals'
 import { getProposals } from '@/gateway/proposals'
 
 const proposals = ref<ProposalBaseInfo[]>([])
+const itemsPerPage = ref(10)
+const currentPage = ref(1)
+
+const loadProposals = async () => {
+  const newProposals = await getProposals(itemsPerPage.value, currentPage.value)
+  proposals.value.push(...newProposals)
+}
+
+const handleScroll = () => {
+  const { scrollTop, scrollHeight, clientHeight } = document.documentElement
+  if (scrollTop + clientHeight >= scrollHeight - 5) {
+    // Check if near the bottom
+    currentPage.value++
+    loadProposals()
+  }
+}
 
 onMounted(async () => {
-  proposals.value = (await getProposals()).reverse()
+  await loadProposals()
+  window.addEventListener('scroll', handleScroll)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('scroll', handleScroll)
 })
 </script>
 

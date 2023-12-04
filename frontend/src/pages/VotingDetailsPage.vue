@@ -28,8 +28,6 @@ import { onMounted, onUnmounted, ref, watch } from 'vue'
 
 import { useRoute } from 'vue-router'
 
-import { bus, BUS_EVENTS } from '@/helpers'
-
 import AppButton from '@/common/AppButton.vue'
 
 import {
@@ -56,8 +54,6 @@ const proposalStatus = ref<ProposalStatus>('voting-status.none')
 const statusState = ref<TagState>('none')
 
 onMounted(async () => {
-  bus.on(BUS_EVENTS.success, handleSuccessEvent)
-
   try {
     proposal.value = await getProposal(ethers.toBigInt(proposalId.value))
     if (!proposal.value) {
@@ -73,13 +69,29 @@ onMounted(async () => {
   statusState.value = getStatusState(proposalStatus.value)
 })
 
-onUnmounted(() => {
-  bus.off(BUS_EVENTS.success, handleSuccessEvent)
+let statusPollingInterval: NodeJS.Timer | undefined
+
+onMounted(async () => {
+  statusPollingInterval = setInterval(updateProposal, 3000)
+
+  await updateProposal()
 })
 
-function handleSuccessEvent() {
-  // Handle the success event, such as opening a modal for proposal creation
+async function updateProposal() {
+  if (proposal.value) {
+    proposal.value = await getProposal(ethers.toBigInt(proposalId.value))
+    proposalStatus.value = await getProposalStatus(
+      ethers.toBigInt(proposalId.value),
+    )
+    statusState.value = getStatusState(proposalStatus.value)
+  }
 }
+
+onUnmounted(() => {
+  if (statusPollingInterval) {
+    clearInterval(statusPollingInterval)
+  }
+})
 
 watch(proposal, newVal => {
   if (newVal === undefined) {

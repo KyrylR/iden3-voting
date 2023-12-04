@@ -22,6 +22,35 @@
       :text="buttonText"
       @click="handleButtonClick"
     />
+
+    <basic-modal
+      class="option-modal"
+      v-model:is-shown="isModalShown"
+      :title="`Voting Option`"
+    >
+      <div class="option-modal__modal-options">
+        <app-button
+          class="option-modal__modal-options__modal-option-button"
+          size="large"
+          modification="border-rounded"
+          :color="'success'"
+          :icon-left="$icons.plus"
+          :scheme="'flat'"
+          :text="$t('common.yes')"
+          @click="handleVoteOption(true)"
+        />
+        <app-button
+          class="option-modal__modal-options__modal-option-button"
+          size="large"
+          modification="border-rounded"
+          :color="'error'"
+          :icon-left="$icons.minus"
+          :scheme="'flat'"
+          :text="$t('common.no')"
+          @click="handleVoteOption(false)"
+        />
+      </div>
+    </basic-modal>
   </header>
 </template>
 
@@ -46,11 +75,10 @@ import {
   voteOnProposal,
 } from '@/gateway/proposals'
 
-import { useSecretStore } from '@/store/secrets-store'
 import { useLocalStorage } from '@/composables/use-local-storage'
 
-const secretStore = useSecretStore()
-const { loadSecrets, saveSecrets } = useLocalStorage()
+import { bus, BUS_EVENTS } from '@/helpers'
+import { BasicModal } from '@/common'
 
 const props = withDefaults(
   defineProps<{
@@ -110,21 +138,44 @@ const handleButtonClick = async () => {
   }
 }
 
-async function handlePendingClick() {
-  const activeSecret = secretStore.getActiveSecret(props.proposal.id)
+const { getActiveSecret, useActiveSecret, getSecret, useSecret } =
+  useLocalStorage()
 
-  await voteOnProposal(props.proposal.id, activeSecret!.secret, 1)
+const isModalShown = ref(false)
+
+async function handlePendingClick() {
+  isModalShown.value = true
 
   await updateProposalStatus()
 }
 
+const handleVoteOption = async (voteYes: boolean) => {
+  const voteValue = voteYes ? 1 : 0
+  const activeSecret = getActiveSecret(props.proposal.id)
+
+  if (!activeSecret) {
+    bus.emit(BUS_EVENTS.error, t('voting-details-header.no-active-secret'))
+    return
+  }
+
+  if (
+    await (
+      await voteOnProposal(props.proposal.id, activeSecret.secret, voteValue)
+    ).wait()
+  ) {
+    useActiveSecret(props.proposal.id, activeSecret)
+  }
+
+  await updateProposalStatus()
+
+  isModalShown.value = false
+}
+
 async function handleCommitmentClick() {
-  const secrets = secretStore.getSecret()
-  await commitOnProposal(props.proposal.id, secrets)
-
-  secretStore.useSecret(props.proposal.id, secrets)
-
-  saveSecrets()
+  const secrets = getSecret()
+  if (await (await commitOnProposal(props.proposal.id, secrets)).wait()) {
+    useSecret(props.proposal.id, secrets)
+  }
 
   await updateProposalStatus()
 }
@@ -137,8 +188,6 @@ async function handleExecutionClick() {
 
 onMounted(async () => {
   await updateProposalStatus()
-
-  loadSecrets()
 })
 
 async function updateProposalStatus() {
@@ -150,12 +199,9 @@ async function updateProposalStatus() {
 
 watch(
   () => props.proposal,
-  async (newProposal, oldProposal) => {
-    if (newProposal && newProposal.id !== oldProposal?.id) {
-      await updateProposalStatus()
-    }
+  async () => {
+    await updateProposalStatus()
   },
-  { immediate: true },
 )
 </script>
 
@@ -188,6 +234,19 @@ watch(
     color: var(--black);
     width: toRem(150);
     font-size: toRem(15);
+  }
+}
+
+.option-modal {
+  &::v-global(.basic-modal__pane) {
+    --basic-modal-max-width: #{toRem(452)};
+  }
+
+  &__modal-options {
+    display: flex;
+    justify-content: space-around;
+    padding: toRem(8);
+    gap: toRem(20);
   }
 }
 </style>

@@ -1,6 +1,8 @@
 {
   "common": {
-    "date-format": "dd-MM-yyyy HH:mm"
+    "date-format": "dd-MM-yyyy HH:mm",
+    "yes": "Yes",
+    "no": "No"
   },
   "validations": {
     "field-error_required": "Please fill out this field",
@@ -83,7 +85,8 @@
     "title": "Governance Proposal",
     "vote": "Vote",
     "commit": "Commit",
-    "execute": "Execute"
+    "execute": "Execute",
+    "no-active-secret": "No active secret"
   },
   "proposal-quorum": {
     "title": "Quorum",

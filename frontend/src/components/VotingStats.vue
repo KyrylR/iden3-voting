@@ -55,10 +55,8 @@ import { getContractBalance } from '@/gateway/proposals'
 import { castAmount } from '@/utils/proposals'
 import { generateSecrets } from '@/gateway/secrets'
 import { useLocalStorage } from '@/composables/use-local-storage'
-import { useSecretStore } from '@/store/secrets-store'
 
-const secretStore = useSecretStore()
-const { loadSecrets, saveSecrets } = useLocalStorage()
+const { saveSecret, getSecretNumber, getActiveSecretsNumber} = useLocalStorage()
 
 const totalSecretsNumber = ref(0)
 const activeSecretsNumber = ref(0)
@@ -67,26 +65,16 @@ const contractBalance = ref('0 ETH')
 function handleGenerateButtonClick() {
   const secrets = generateSecrets()
 
-  secretStore.addSecret(secrets)
-  saveSecrets()
+  saveSecret(secrets)
 
-  totalSecretsNumber.value = secretStore.secrets.size
+  totalSecretsNumber.value = getSecretNumber()
 }
 
 onMounted(async () => {
-  loadSecrets()
-
   contractBalance.value = castAmount(await getContractBalance())
 
-  const storedSecrets = useSecretStore().secrets
-  if (storedSecrets) {
-    totalSecretsNumber.value = storedSecrets.size
-  }
-
-  const storedActiveSecrets = useSecretStore().activeSecrets
-  if (storedActiveSecrets) {
-    activeSecretsNumber.value = storedActiveSecrets.size
-  }
+  totalSecretsNumber.value = getSecretNumber()
+  activeSecretsNumber.value = getActiveSecretsNumber()
 })
 </script>
 

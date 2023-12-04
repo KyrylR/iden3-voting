@@ -51,9 +51,6 @@ export async function getZKP(
   const leaf = getBytes32PoseidonHash(getCommitment(pair))
   const nullifierHash = getNullifierHash(pair)
 
-  console.log(getCommitment(pair))
-  console.log('leaf: ', leaf)
-
   const proofData: ProofResponse | null = await fetchProof(leaf)
 
   if (!proofData) {
@@ -64,19 +61,6 @@ export async function getZKP(
   const tree_root = '0x' + proofData.tree_root
   const pathElements = proofData.proof_hashes.map((x: string) => '0x' + x)
   const pathIndices = proofData.proof_indices
-
-  console.log(
-    {
-      root: tree_root,
-      nullifierHash: nullifierHash,
-      secret: pair.secret,
-      nullifier: pair.nullifier,
-      voter: voter,
-      proposalId: proposalId,
-      pathElements: pathElements,
-      pathIndices: pathIndices,
-    },
-  )
 
   const { proof } = await snarkjs.groth16.fullProve(
     {

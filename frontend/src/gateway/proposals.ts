@@ -8,14 +8,21 @@ import { Voting, Voting__factory } from '@bindings'
 import { SecretPair } from '@/types/secrets'
 import { getCommitment, getZKP } from '@/gateway/secrets'
 
-export async function getProposals() {
+export async function getProposals(itemsPerPage: number, currentPage: number) {
   const voting = await getVotingInstance()
 
   const proposalCount = await voting.proposalsCount()
 
+  // Calculate start and end based on currentPage and itemsPerPage
+  const start = Math.max(
+    0,
+    Number(proposalCount) - (currentPage - 1) * itemsPerPage,
+  )
+  const end = Math.max(0, Number(proposalCount) - currentPage * itemsPerPage)
+
   const proposals: ProposalBaseInfo[] = []
 
-  for (let i = 0; i <= proposalCount; i++) {
+  for (let i = start; i >= end; i--) {
     const proposal = await voting.proposals(i)
 
     if (proposal.params.requiredMajority === 0n) {
@@ -67,7 +74,7 @@ export async function createProposal(remark: string) {
   const votingInterface = Voting__factory.createInterface()
   const callData = votingInterface.encodeFunctionData('distributeFunds', [
     await signer.getAddress(),
-    ethers.parseEther('1'),
+    await getContractBalance(),
   ])
 
   return voting.createProposal(remark, DEFAULT_DATA, callData)

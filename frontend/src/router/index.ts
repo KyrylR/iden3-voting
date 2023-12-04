@@ -1,21 +1,17 @@
-import { createRouter, createWebHistory, RouteRecordRaw, useRoute, useRouter } from 'vue-router'
+import {
+  createRouter,
+  createWebHistory,
+  RouteRecordRaw,
+  useRoute,
+  useRouter,
+} from 'vue-router'
 
 import { ROUTE_NAMES } from '@/enums'
 
 const routes: Array<RouteRecordRaw> = [
   {
     path: '/:catchAll(.*)',
-    redirect: { name: ROUTE_NAMES.uiKit },
-  },
-  {
-    path: '/ui-kit',
-    name: ROUTE_NAMES.uiKit,
-    component: () => import('@/pages/UiKitPage.vue'),
-  },
-  {
-    path: '/complex-form',
-    name: ROUTE_NAMES.complexForm,
-    component: () => import('@/forms/ComplexForm.vue'),
+    redirect: { name: ROUTE_NAMES.voting },
   },
   {
     path: '/not-found',
