@@ -19,6 +19,15 @@
     <div class="voting-stats__details">
       <div class="voting-stats__details__item">
         <span class="voting-stats__details__item__label">{{
+          $t('voting-stats.contract-balance')
+        }}</span>
+        <span class="voting-stats__details__item__value">
+          {{ contractBalance }}
+        </span>
+      </div>
+      <div class="voting-stats__details__divider"></div>
+      <div class="voting-stats__details__item">
+        <span class="voting-stats__details__item__label">{{
           $t('voting-stats.total-secrets-number')
         }}</span>
         <span class="voting-stats__details__item__value">
@@ -40,21 +49,52 @@
 
 <script setup lang="ts">
 import AppButton from '@/common/AppButton.vue'
-import { bus, BUS_EVENTS } from '@/helpers'
 
-const totalSecretsNumber = 0
-const activeSecretsNumber = 0
+import { onMounted, ref } from 'vue'
+import { getContractBalance } from '@/gateway/proposals'
+import { castAmount } from '@/utils/proposals'
+import { generateSecrets } from '@/gateway/secrets'
+import { useLocalStorage } from '@/composables/use-local-storage'
+import { useSecretStore } from '@/store/secrets-store'
+
+const secretStore = useSecretStore()
+const { loadSecrets, saveSecrets } = useLocalStorage()
+
+const totalSecretsNumber = ref(0)
+const activeSecretsNumber = ref(0)
+const contractBalance = ref('0 ETH')
 
 function handleGenerateButtonClick() {
-  bus.emit(BUS_EVENTS.success, 'Generate button clicked')
+  const secrets = generateSecrets()
+
+  secretStore.addSecret(secrets)
+  saveSecrets()
+
+  totalSecretsNumber.value = secretStore.secrets.size
 }
+
+onMounted(async () => {
+  loadSecrets()
+
+  contractBalance.value = castAmount(await getContractBalance())
+
+  const storedSecrets = useSecretStore().secrets
+  if (storedSecrets) {
+    totalSecretsNumber.value = storedSecrets.size
+  }
+
+  const storedActiveSecrets = useSecretStore().activeSecrets
+  if (storedActiveSecrets) {
+    activeSecretsNumber.value = storedActiveSecrets.size
+  }
+})
 </script>
 
 <style lang="scss" scoped>
 .voting-stats {
   display: flex;
   flex-direction: column;
-  background-color: #fff; // Light background for the stats card
+  background-color: var(--background-primary-main);
   border-radius: toRem(12);
   box-shadow: 0 toRem(3) toRem(2) rgba(var(--black-rgb), 0.3),
     0 toRem(2) toRem(6) toRem(2) rgba(var(--black-rgb), 0.15);
@@ -73,7 +113,7 @@ function handleGenerateButtonClick() {
 
     &__generate {
       font-size: toRem(16);
-      color: #000000;
+      color: var(--black);
     }
   }
 
@@ -86,7 +126,7 @@ function handleGenerateButtonClick() {
     &__divider {
       height: toRem(48);
       width: toRem(1);
-      background-color: #000000;
+      background-color: var(--black);
     }
 
     &__item {
@@ -98,13 +138,13 @@ function handleGenerateButtonClick() {
 
       &__label {
         font-size: toRem(16);
-        color: #333;
+        color: var(--text-primary-main);
       }
 
       &__value {
         font-size: toRem(18);
         font-weight: 600;
-        color: #333;
+        color: var(--text-primary-main);
       }
     }
   }

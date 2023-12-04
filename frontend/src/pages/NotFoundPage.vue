@@ -2,9 +2,10 @@
   <div class="not-found-page">
     <app-button
       class="not-found-page__home-button"
-      size="medium"
-      scheme="flat"
+      size="large"
+      scheme="filled"
       :text="'Home'"
+      :icon-left="$icons.home"
       @click="goHome"
     />
   </div>
@@ -12,8 +13,10 @@
 
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
+
 import AppButton from '@/common/AppButton.vue'
-import { ROUTE_NAMES } from '@/enums' // Make sure this path is correct
+
+import { ROUTE_NAMES } from '@/enums'
 
 const router = useRouter()
 

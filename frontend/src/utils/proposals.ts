@@ -1,7 +1,14 @@
-import { ProposalBaseInfo, ProposalStatus } from '@/typings/proposals'
+import { ProposalBaseInfo } from '@/types/proposals'
 import { ethers } from 'ethers'
+import { ProposalStatus } from '@/gateway/proposals'
 
-export type TagState = 'pending' | 'commitment' | 'execution'
+export type TagState =
+  | 'none'
+  | 'pending'
+  | 'commitment'
+  | 'execution'
+  | 'rejected'
+  | 'executed'
 
 export const PERCENTAGE_100 = ethers.toBigInt(10n ** 27n)
 
@@ -25,29 +32,31 @@ export function getCurrentMajority(proposal: ProposalBaseInfo): bigint {
   return (votedFor * PERCENTAGE_100) / (votedFor + votedAgainst)
 }
 
-export function getProposalStatus(proposal: ProposalBaseInfo): ProposalStatus {
-  const now = Date.now() / 1000
-
-  if (proposal.params.commitmentEndTime > now) {
-    return 'voting-status.commitment'
-  } else if (proposal.params.votingEndTime > now) {
-    return 'voting-status.voting'
-  }
-
-  return 'voting-status.execution'
-}
-
 export const getStatusState = (proposalStatus: ProposalStatus): TagState => {
   switch (proposalStatus) {
+    case 'voting-status.none':
+      return 'none'
     case 'voting-status.commitment':
       return 'commitment'
     case 'voting-status.voting':
       return 'pending'
     case 'voting-status.execution':
       return 'execution'
+    case 'voting-status.rejected':
+      return 'rejected'
+    case 'voting-status.executed':
+      return 'executed'
     default:
-      return 'pending'
+      return 'none'
   }
+}
+
+export function castAmount(value: bigint): string {
+  if (value > 0n && value < 10n ** 12n) {
+    return ethers.formatUnits(value, 'gwei') + ' GWei'
+  }
+
+  return ethers.formatEther(value) + ' ETH'
 }
 
 export const bigIntMax = (...args: bigint[]) =>

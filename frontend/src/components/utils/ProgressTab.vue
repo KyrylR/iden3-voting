@@ -37,7 +37,7 @@ const valuePercentage = computed(() => {
 .progress {
   width: 100%;
   height: toRem(6);
-  background-color: #e0e0e0;
+  background-color: var(--background-primary-main);
   border-radius: toRem(2);
   overflow: hidden;
 
@@ -49,7 +49,7 @@ const valuePercentage = computed(() => {
 
     &__value {
       height: 100%;
-      background-color: #4caf50;
+      background-color: var(--success-dark);
       transition: width 0.3s ease;
     }
   }

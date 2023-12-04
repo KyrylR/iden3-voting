@@ -1,11 +1,7 @@
 <template>
   <div class="input-field" :class="inputClasses">
     <div class="input-field__input-wrp">
-      <div
-        v-if="$slots.nodeLeft"
-        ref="nodeLeftWrp"
-        class="input-field__node-left-wrp"
-      >
+      <div v-if="$slots.nodeLeft" ref="nodeLeftWrp" class="input-field__node-left-wrp">
         <slot name="nodeLeft" />
       </div>
       <input
@@ -22,11 +18,7 @@
         :max="max"
         :disabled="isDisabled || isReadonly"
       />
-      <label
-        v-if="label"
-        :for="`input-field--${uid}`"
-        class="input-field__label"
-      >
+      <label v-if="label" :for="`input-field--${uid}`" class="input-field__label">
         {{ label }}
       </label>
       <div
@@ -35,28 +27,13 @@
         class="input-field__node-right-wrp"
       >
         <slot v-if="$slots.nodeRight" name="nodeRight" />
-        <button
-          v-else-if="isPasswordType"
-          type="button"
-          @click="isPasswordShown = !isPasswordShown"
-        >
-          <icon
-            class="input-field__password-icon"
-            :name="isPasswordShown ? ICON_NAMES.eye : ICON_NAMES.eyeOff"
-          />
+        <button v-else-if="isPasswordType" type="button" @click="isPasswordShown = !isPasswordShown">
+          <icon class="input-field__password-icon" :name="isPasswordShown ? ICON_NAMES.eye : ICON_NAMES.eyeOff" />
         </button>
-        <icon
-          v-else-if="props.errorMessage"
-          class="input-field__error-icon"
-          :name="ICON_NAMES.exclamationCircle"
-        />
+        <icon v-else-if="props.errorMessage" class="input-field__error-icon" :name="ICON_NAMES.exclamationCircle" />
       </div>
     </div>
-    <transition
-      name="input-field__err-msg-transition"
-      @enter="setHeightCSSVar"
-      @before-leave="setHeightCSSVar"
-    >
+    <transition name="input-field__err-msg-transition" @enter="setHeightCSSVar" @before-leave="setHeightCSSVar">
       <span v-if="errorMessage" class="input-field__err-msg">
         {{ errorMessage }}
       </span>
@@ -114,20 +91,12 @@ const isPasswordShown = ref(false)
 const isNumberType = computed(() => props.type === 'number')
 const isPasswordType = computed(() => props.type === 'password')
 
-const min = computed((): string =>
-  !isNaN(Number(attrs?.min)) && attrs?.min !== '' ? (attrs.min as string) : '',
-)
-const max = computed((): string =>
-  !isNaN(Number(attrs?.max)) && attrs?.max !== '' ? (attrs.max as string) : '',
-)
+const min = computed((): string => (!isNaN(Number(attrs?.min)) && attrs?.min !== '' ? (attrs.min as string) : ''))
+const max = computed((): string => (!isNaN(Number(attrs?.max)) && attrs?.max !== '' ? (attrs.max as string) : ''))
 
-const isDisabled = computed(() =>
-  ['', 'disabled', true].includes(attrs.disabled as string | boolean),
-)
+const isDisabled = computed(() => ['', 'disabled', true].includes(attrs.disabled as string | boolean))
 
-const isReadonly = computed(() =>
-  ['', 'readonly', true].includes(attrs.readonly as string | boolean),
-)
+const isReadonly = computed(() => ['', 'readonly', true].includes(attrs.readonly as string | boolean))
 
 const listeners = computed(() => ({
   input: (event: Event) => {
@@ -145,9 +114,7 @@ const listeners = computed(() => ({
 const inputClasses = computed(() =>
   [
     ...(slots.nodeLeft ? ['input-field--node-left'] : []),
-    ...(slots.nodeRight || isPasswordType.value || props.errorMessage
-      ? ['input-field--node-right']
-      : []),
+    ...(slots.nodeRight || isPasswordType.value || props.errorMessage ? ['input-field--node-right'] : []),
     ...(isDisabled.value ? ['input-field--disabled'] : []),
     ...(isReadonly.value ? ['input-field--readonly'] : []),
     ...(props.errorMessage ? ['input-field--error'] : []),
@@ -168,18 +135,14 @@ onMounted(() => {
   if (slots?.nodeLeft && nodeLeftWrp.value) {
     inputEl.value?.style.setProperty(
       'padding-left',
-      `calc(${
-        nodeLeftWrp.value?.offsetWidth || 0
-      }px + var(--field-padding-left) * 2)`,
+      `calc(${nodeLeftWrp.value?.offsetWidth || 0}px + var(--field-padding-left) * 2)`,
     )
   }
 
   if (slots?.nodeRight && nodeRightWrp.value) {
     inputEl.value?.style.setProperty(
       'padding-right',
-      `calc(${
-        nodeRightWrp.value?.offsetWidth || 0
-      }px + var(--field-padding-right) * 2)`,
+      `calc(${nodeRightWrp.value?.offsetWidth || 0}px + var(--field-padding-right) * 2)`,
     )
   }
 })
@@ -191,15 +154,9 @@ const normalizeNumber = (value: string) => {
 const normalizeRange = (value: string | number): string => {
   let result = value
 
-  if (
-    String(min.value) &&
-    BN.fromRaw(value, DECIMALS.WEI).lt(BN.fromRaw(min.value, DECIMALS.WEI))
-  ) {
+  if (String(min.value) && BN.fromRaw(value, DECIMALS.WEI).lt(BN.fromRaw(min.value, DECIMALS.WEI))) {
     result = min.value
-  } else if (
-    String(max.value) &&
-    BN.fromRaw(value, DECIMALS.WEI).gt(BN.fromRaw(max.value, DECIMALS.WEI))
-  ) {
+  } else if (String(max.value) && BN.fromRaw(value, DECIMALS.WEI).gt(BN.fromRaw(max.value, DECIMALS.WEI))) {
     result = max.value
   }
 
@@ -207,10 +164,7 @@ const normalizeRange = (value: string | number): string => {
 }
 
 const setHeightCSSVar = (element: Element) => {
-  ;(element as HTMLElement).style.setProperty(
-    '--field-error-msg-height',
-    `${element.scrollHeight}px`,
-  )
+  ;(element as HTMLElement).style.setProperty('--field-error-msg-height', `${element.scrollHeight}px`)
 }
 </script>
 
@@ -345,15 +299,13 @@ $z-index-side-nodes: 1;
 
   .input-field--error.input-field--primary & {
     border-color: var(--field-error);
-    box-shadow: inset 0 0 0 toRem(50) var(--field-bg-primary),
-      0 0 0 toRem(1) var(--field-error);
+    box-shadow: inset 0 0 0 toRem(50) var(--field-bg-primary), 0 0 0 toRem(1) var(--field-error);
   }
 
   &:not([disabled]):focus {
     .input-field--primary & {
       box-sizing: border-box;
-      box-shadow: inset 0 0 0 toRem(50) var(--field-bg-primary),
-        0 0 0 toRem(1) var(--field-border-focus);
+      box-shadow: inset 0 0 0 toRem(50) var(--field-bg-primary), 0 0 0 toRem(1) var(--field-border-focus);
       border-color: var(--field-border-focus);
     }
   }

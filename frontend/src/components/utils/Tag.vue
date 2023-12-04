@@ -19,29 +19,39 @@ const props = withDefaults(
 
 <style lang="scss" scoped>
 .tag {
-  padding: 0.5rem 1rem;
-  border-radius: 4px;
+  padding: toRem(8) toRem(8);
+  border-radius: toRem(4);
   display: flex;
   text-align: justify;
   align-items: center;
   justify-content: center;
-  font-weight: bold;
-  background-color: #f0f0f0;
-  color: #333;
+  font-weight: 700;
+  background-color: var(--background-primary-main);
+  color: var(--text-primary-main);
 
   &.pending {
-    background-color: #97cdff;
-    color: #333;
-  }
-
-  &.execution {
-    background-color: #83fe9d;
-    color: #333;
+    background-color: var(--warning-main);
+    color: var(--black);
   }
 
   &.commitment {
-    background-color: #fedb6a;
-    color: #333;
+    background-color: var(--info-main);
+    color: var(--black);
+  }
+
+  &.execution {
+    background-color: var(--success-light);
+    color: var(--black);
+  }
+
+  &.rejected {
+    background-color: var(--error-main);
+    color: var(--black);
+  }
+
+  &.executed {
+    background-color: var(--success-main);
+    color: var(--black);
   }
 }
 </style>

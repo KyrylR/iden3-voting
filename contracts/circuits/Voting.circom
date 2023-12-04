@@ -94,7 +94,7 @@ template LeafExists(levels){
 }
 
 // Verifies that commitment that corresponds to given secret and nullifier is included in the merkle tree of deposits
-template Withdraw(levels) {
+template Voting(levels) {
     signal input root;
     signal input nullifierHash;
 
@@ -133,4 +133,4 @@ template Withdraw(levels) {
     signal proposalIdSquare <== proposalId;
 }
 
-component main {public [root, nullifierHash, voter, proposalId]} = Withdraw(6);
+component main {public [root, nullifierHash, voter, proposalId]} = Voting(6);

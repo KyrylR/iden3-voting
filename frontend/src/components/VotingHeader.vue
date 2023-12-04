@@ -27,7 +27,8 @@ import AppButton from '@/common/AppButton.vue'
   align-items: center;
   justify-content: space-between;
   gap: toRem(24);
-  padding: toRem(36) var(--voting-app-padding-left) toRem(36) var(--voting-app-padding-right);
+  padding: toRem(36) var(--voting-app-padding-left) toRem(36)
+    var(--voting-app-padding-right);
   background: var(--background-primary-main);
   border-bottom: var(--border-primary-main);
 
@@ -41,7 +42,7 @@ import AppButton from '@/common/AppButton.vue'
 }
 
 .header__create-proposal-button {
-  color: #000000;
+  color: var(--black);
   font-size: toRem(15);
 }
 </style>

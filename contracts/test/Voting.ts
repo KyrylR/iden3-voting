@@ -244,7 +244,9 @@ describe("Voting", () => {
       await time.increase(101);
     });
 
-    it("should vote for proposal", async () => {
+    it.only("should vote for proposal", async () => {
+      console.log(await voting.getRoot());
+      console.log(getRoot(localMerkleTree));
       const dataToVerify = await getZKP(
         pair,
         OWNER.address,

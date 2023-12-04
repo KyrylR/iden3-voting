@@ -9,10 +9,7 @@
       @click="() => $router.back()"
     />
 
-    <voting-details-header
-      :proposal-id="proposal?.id"
-      :proposal-status="statusState"
-    />
+    <voting-details-header :proposal="proposal" />
 
     <voting-details-info :remark="proposal?.remark" />
 
@@ -27,7 +24,7 @@
 <script lang="ts" setup>
 import { ethers } from 'ethers'
 
-import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
+import { onMounted, onUnmounted, ref, watch } from 'vue'
 
 import { useRoute } from 'vue-router'
 
@@ -35,14 +32,18 @@ import { bus, BUS_EVENTS } from '@/helpers'
 
 import AppButton from '@/common/AppButton.vue'
 
-import { getProposal } from '@/gateway/proposals'
+import {
+  getProposal,
+  getProposalStatus,
+  ProposalStatus,
+} from '@/gateway/proposals'
 
-import { ProposalBaseInfo } from '@/typings/proposals'
+import { ProposalBaseInfo } from '@/types/proposals'
 import { router } from '@/router'
 import { ROUTE_NAMES } from '@/enums'
 import VotingDetailsHeader from '@/components/VotingDetailsHeader.vue'
 import VotingDetailsInfo from '@/components/VotingDetailsInfo.vue'
-import { getProposalStatus, getStatusState } from '@/utils/proposals'
+import { getStatusState, TagState } from '@/utils/proposals'
 import QuorumCard from '@/components/QuorumCard.vue'
 import MajorityCard from '@/components/MajorityCard.vue'
 
@@ -51,8 +52,8 @@ const proposalId = ref(String(route.params.id))
 
 const proposal = ref<ProposalBaseInfo | undefined>(undefined)
 
-const proposalStatus = computed(() => getProposalStatus(proposal.value!))
-const statusState = computed(() => getStatusState(proposalStatus.value))
+const proposalStatus = ref<ProposalStatus>('voting-status.none')
+const statusState = ref<TagState>('none')
 
 onMounted(async () => {
   bus.on(BUS_EVENTS.success, handleSuccessEvent)
@@ -65,6 +66,11 @@ onMounted(async () => {
   } catch (error) {
     await router.push({ name: ROUTE_NAMES.notFound })
   }
+
+  proposalStatus.value = await getProposalStatus(
+    ethers.toBigInt(proposalId.value),
+  )
+  statusState.value = getStatusState(proposalStatus.value)
 })
 
 onUnmounted(() => {
@@ -99,7 +105,7 @@ watch(proposal, newVal => {
       var(--voting-app-padding-right);
     margin-top: toRem(24);
 
-    @media (max-width: 860px) {
+    @media (width <= 53.75rem) {
       grid-template-columns: 1fr;
     }
   }

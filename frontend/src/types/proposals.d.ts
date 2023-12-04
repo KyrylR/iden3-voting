@@ -1,16 +1,9 @@
-export type ProposalStatus =
-  | 'voting-status.voting'
-  | 'voting-status.commitment'
-  | 'voting-status.execution'
-
 export interface DaoProposalVotingParams {
-  proposalExecutionPeriod: bigint
   requiredMajority: bigint
   requiredQuorum: bigint
-  commitmentEndTime: bigint
   votingEndTime: bigint
-  votingStartTime: bigint
-  totalCommitment: bigint
+  commitmentEndTime: bigint
+  proposalExecutionEndTime: bigint
 }
 
 export interface DaoProposalVotingCounters {

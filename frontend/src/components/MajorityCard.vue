@@ -6,7 +6,11 @@
     <div class="proposal-majority__voting">
       <div class="proposal-majority__voting__header__majority">
         <div class="proposal-majority__voting__header__majority__current">
-          {{ $t('proposal-majority.requirement') + ' > ' + formatPercent(singlePrecision(requiredMajority)) }}
+          {{
+            $t('proposal-majority.requirement') +
+            ' > ' +
+            formatPercent(singlePrecision(requiredMajority))
+          }}
         </div>
       </div>
       <progress-tab
@@ -40,7 +44,7 @@
 <script lang="ts" setup>
 import { computed } from 'vue'
 
-import { ProposalBaseInfo } from '@/typings/proposals'
+import { ProposalBaseInfo } from '@/types/proposals'
 import { formatPercent, singlePrecision } from '@/helpers'
 
 import ProgressTab from '@/components/utils/ProgressTab.vue'
@@ -76,20 +80,20 @@ const requiredMajority = computed(() => props.proposal!.params.requiredMajority)
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 10px;
+    margin-bottom: toRem(12);
   }
 
   &__id {
-    color: #757575;
+    color: var(--text-primary-light);
     font-size: 0.9rem;
     display: flex;
-    gap: 8px;
+    gap: toRem(8);
   }
 
   &__title {
     font-size: toRem(24);
-    font-weight: bold;
-    color: #424242;
+    font-weight: 700;
+    color: var(--text-primary-light);
     margin: 0;
     overflow: hidden;
     text-overflow: ellipsis;

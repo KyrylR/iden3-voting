@@ -24,14 +24,14 @@ import VotingHeader from '@/components/VotingHeader.vue'
 import VotingStats from '@/components/VotingStats.vue'
 import ProposalCard from '@/components/ProposalCard.vue'
 
-import { ProposalBaseInfo } from '@/typings/proposals'
+import { ProposalBaseInfo } from '@/types/proposals'
 
 import { getProposals } from '@/gateway/proposals'
 
 const proposals = ref<ProposalBaseInfo[]>([])
 
 onMounted(async () => {
-  proposals.value = await getProposals()
+  proposals.value = (await getProposals()).reverse()
 })
 </script>
 
@@ -43,7 +43,7 @@ onMounted(async () => {
   margin: toRem(24) var(--voting-app-padding-left) toRem(0)
     var(--voting-app-padding-right);
 
-  @media (max-width: 860px) {
+  @media (width <= 53.75rem) {
     grid-template-columns: 1fr;
   }
 }

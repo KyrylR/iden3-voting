@@ -1,16 +1,25 @@
 version: '3.8'
 services:
   app:
-    build: .
+    build: ./backend
     volumes:
-      - .:/usr/src/myapp
-      - ./Settings.yaml:/usr/src/myapp/Settings.yaml
+      - ./backend:/usr/src/myapp
+      - ./backend/Settings.yaml:/usr/src/myapp/Settings.yaml
     environment:
       - DATABASE_URL=postgres://postgres:password@db/myapp
     depends_on:
       - db
     ports:
       - "3000:3000"
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "80:80"
+    environment:
+      - BUILD_VERSION=0.2
+    depends_on:
+      - app
 
   db:
     image: postgres:13

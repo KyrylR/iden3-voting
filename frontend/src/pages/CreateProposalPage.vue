@@ -35,7 +35,7 @@
         </div>
         <input-field
           v-model="form.input"
-          :label="'label'"
+          :label="'remark'"
           :placeholder="'placeholder'"
           class="create-proposal-page__form__input"
         />
@@ -49,14 +49,15 @@ import { reactive } from 'vue'
 
 import AppButton from '@/common/AppButton.vue'
 import InputField from '@/fields/InputField.vue'
-import { bus, BUS_EVENTS } from '@/helpers'
+
+import { createProposal } from '@/gateway/proposals'
 
 const form = reactive({
   input: '',
 })
 
-function handleSubmitButtonClick() {
-  bus.emit(BUS_EVENTS.success, 'Submit button clicked')
+async function handleSubmitButtonClick() {
+  await createProposal(form.input)
 }
 </script>
 
@@ -64,7 +65,7 @@ function handleSubmitButtonClick() {
 .block {
   display: flex;
   flex-direction: column;
-  background-color: #fff; // Light background for the stats card
+  background-color: var(--background-primary-main);
   border-radius: toRem(12);
   box-shadow: 0 toRem(3) toRem(2) rgba(var(--black-rgb), 0.3),
     0 toRem(2) toRem(6) toRem(2) rgba(var(--black-rgb), 0.15);

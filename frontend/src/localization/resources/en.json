@@ -54,7 +54,8 @@
     "title": "Voting Stats",
     "total-secrets-number": "Total Secrets",
     "active-secrets-number": "Active Secrets",
-    "generate-secrets": "Generate Secrets"
+    "generate-secrets": "Generate Secrets",
+    "contract-balance": "Contract Balance"
   },
   "proposal-card": {
     "id": "Proposal ID",
@@ -64,9 +65,12 @@
     "voting-end-time": "Voting end time"
   },
   "voting-status": {
+    "none": "None",
     "commitment": "Commitment",
     "voting": "Voting",
-    "execution": "Execution"
+    "execution": "Execution",
+    "rejected": "Rejected",
+    "executed": "Executed"
   },
   "voting-details": {
     "back-btn": "Back"
@@ -77,7 +81,9 @@
   },
   "voting-details-header": {
     "title": "Governance Proposal",
-    "vote": "Vote"
+    "vote": "Vote",
+    "commit": "Commit",
+    "execute": "Execute"
   },
   "proposal-quorum": {
     "title": "Quorum",
@@ -98,6 +104,6 @@
     "submit": "Submit"
   },
   "create-voting-form": {
-    "remark-input": "Remark"
+    "remark-input": "External Information"
   }
 }

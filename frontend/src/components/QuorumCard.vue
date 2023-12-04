@@ -50,7 +50,7 @@
 <script lang="ts" setup>
 import { computed } from 'vue'
 
-import { ProposalBaseInfo } from '@/typings/proposals'
+import { ProposalBaseInfo } from '@/types/proposals'
 import { bigIntMax, getCurrentQuorum } from '@/utils/proposals'
 import { formatPercent, singlePrecision } from '@/helpers'
 
@@ -93,20 +93,20 @@ const leftQuorum = computed(() => {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 10px;
+    margin-bottom: toRem(12);
   }
 
   &__id {
-    color: #757575;
-    font-size: 0.9rem;
+    color: var(--text-primary-light);
+    font-size: toRem(16);
     display: flex;
-    gap: 8px;
+    gap: toRem(8);
   }
 
   &__title {
     font-size: toRem(24);
-    font-weight: bold;
-    color: #424242;
+    font-weight: 700;
+    color: var(--text-primary-light);
     margin: 0;
     overflow: hidden;
     text-overflow: ellipsis;

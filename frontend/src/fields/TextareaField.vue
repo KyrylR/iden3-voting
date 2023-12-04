@@ -11,19 +11,11 @@
         :tabindex="isDisabled || isReadonly ? -1 : ($attrs.tabindex as number)"
         :disabled="isDisabled || isReadonly"
       />
-      <label
-        v-if="label"
-        :for="`textarea-field--${uid}`"
-        class="textarea-field__label"
-      >
+      <label v-if="label" :for="`textarea-field--${uid}`" class="textarea-field__label">
         {{ label }}
       </label>
     </div>
-    <transition
-      name="textarea-field__err-msg-transition"
-      @enter="setHeightCSSVar"
-      @before-leave="setHeightCSSVar"
-    >
+    <transition name="textarea-field__err-msg-transition" @enter="setHeightCSSVar" @before-leave="setHeightCSSVar">
       <span v-if="errorMessage" class="textarea-field__err-msg">
         {{ errorMessage }}
       </span>
@@ -66,13 +58,9 @@ const attrs = useAttrs()
 
 const uid = uuidv4()
 
-const isDisabled = computed(() =>
-  ['', 'disabled', true].includes(attrs.disabled as string | boolean),
-)
+const isDisabled = computed(() => ['', 'disabled', true].includes(attrs.disabled as string | boolean))
 
-const isReadonly = computed(() =>
-  ['', 'readonly', true].includes(attrs.readonly as string | boolean),
-)
+const isReadonly = computed(() => ['', 'readonly', true].includes(attrs.readonly as string | boolean))
 
 const listeners = computed(() => ({
   input: (event: Event) => {
@@ -95,10 +83,7 @@ const textareaClasses = computed(() =>
 )
 
 const setHeightCSSVar = (element: Element) => {
-  ;(element as HTMLElement).style.setProperty(
-    '--field-error-msg-height',
-    `${element.scrollHeight}px`,
-  )
+  ;(element as HTMLElement).style.setProperty('--field-error-msg-height', `${element.scrollHeight}px`)
 }
 </script>
 
@@ -143,9 +128,7 @@ const setHeightCSSVar = (element: Element) => {
   }
   /* stylelint-disable-next-line */
   .textarea-field__textarea:not(:focus):placeholder-shown ~ & {
-    top: calc(
-      var(--field-padding-top) + var(--field-text-font-size) + #{toRem(8)}
-    );
+    top: calc(var(--field-padding-top) + var(--field-text-font-size) + #{toRem(8)});
     color: var(--field-label);
     font-size: toRem(16);
     font-weight: 400;
@@ -159,9 +142,7 @@ const setHeightCSSVar = (element: Element) => {
   }
 
   .textarea-field__textarea:not(:focus):placeholder-shown:-webkit-autofill ~ & {
-    top: calc(
-      var(--field-padding-top) + var(--field-text-font-size) - #{toRem(1)}
-    );
+    top: calc(var(--field-padding-top) + var(--field-text-font-size) - #{toRem(1)});
     color: var(--field-label);
     font-size: toRem(16);
     font-weight: 400;
@@ -237,15 +218,13 @@ const setHeightCSSVar = (element: Element) => {
 
   .textarea-field--error.textarea-field--primary & {
     border-color: var(--field-error);
-    box-shadow: inset 0 0 0 toRem(50) var(--field-bg-primary),
-      0 0 0 toRem(1) var(--field-error);
+    box-shadow: inset 0 0 0 toRem(50) var(--field-bg-primary), 0 0 0 toRem(1) var(--field-error);
   }
 
   &:not([disabled]):focus {
     .textarea-field--primary & {
       box-sizing: border-box;
-      box-shadow: inset 0 0 0 toRem(500) var(--field-bg-primary),
-        0 0 0 toRem(1) var(--field-border-focus);
+      box-shadow: inset 0 0 0 toRem(500) var(--field-bg-primary), 0 0 0 toRem(1) var(--field-border-focus);
       border-color: var(--field-border-focus);
     }
   }

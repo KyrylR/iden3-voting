@@ -18,7 +18,8 @@
     "paths": {
       "@/*": ["src/*"],
       "@config": ["src/config.ts"],
-      "@static": ["static"]
+      "@static": ["static"],
+      "@bindings": ["generated-types/ethers"]
     },
     "lib": ["ESNext", "DOM", "DOM.Iterable", "ScriptHost"],
     "isolatedModules": true,
@@ -33,6 +34,8 @@
     "tests/**/*.tsx",
     "index.d.ts",
     "package.json",
-    "src/**/*.json"
+    "src/**/*.json",
+    "generated-types/**/*.ts"
   ]
+  //  "exclude": ["generated-types"]
 }

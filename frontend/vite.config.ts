@@ -75,6 +75,7 @@ export default defineConfig(({ mode }) => {
         '@': `${root}/`,
         '@config': `${root}/config.ts`,
         '@static': `${root}/../static`,
+        '@bindings': `${root}/../generated-types/ethers`,
       },
     },
     /**

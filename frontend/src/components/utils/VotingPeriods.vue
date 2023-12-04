@@ -8,7 +8,7 @@
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import { ProposalBaseInfo } from '@/typings/proposals'
+import { ProposalBaseInfo } from '@/types/proposals'
 import { unixToDate, formatDate } from '@/utils/date'
 
 const props = withDefaults(

@@ -3,6 +3,7 @@ use std::sync::Arc;
 
 use axum::http::StatusCode;
 use axum::response::IntoResponse;
+use axum::routing::post;
 use axum::{routing::get, Json, Router};
 use ethers::utils::__serde_json::json;
 use rs_merkle::MerkleTree;
@@ -50,7 +51,7 @@ async fn main() {
         .route("/api", get(|| async { "Hello, World!" }))
         .route(
             "/api/proof",
-            get(|Json(payload): Json<ProofRequest>| async move {
+            post(|Json(payload): Json<ProofRequest>| async move {
                 if let Err(e) = payload.validate() {
                     return Err(ValidationError(e));
                 }

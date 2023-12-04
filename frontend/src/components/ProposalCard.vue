@@ -16,10 +16,18 @@
     <div class="proposal-card__voting">
       <div class="proposal-card__voting__quorum">
         <div class="proposal-card__quorum__current">
-          {{ $t('proposal-card.quorum') + ' ' + formatPercent(singlePrecision(currentQuorum)) }}
+          {{
+            $t('proposal-card.quorum') +
+            ' ' +
+            formatPercent(singlePrecision(currentQuorum))
+          }}
         </div>
         <div class="proposal-card__quorum__left">
-          {{ $t('proposal-card.left-quorum') + ' ' + formatPercent(singlePrecision(leftQuorum)) }}
+          {{
+            $t('proposal-card.left-quorum') +
+            ' ' +
+            formatPercent(singlePrecision(leftQuorum))
+          }}
         </div>
       </div>
       <progress-tab
@@ -33,17 +41,23 @@
 </template>
 
 <script lang="ts" setup>
-import { computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { LocationAsRelativeRaw } from 'vue-router'
 
 import Tag from '@/components/utils/Tag.vue'
 
-import { ProposalBaseInfo } from '@/typings/proposals'
-import { bigIntMax, getCurrentQuorum, getProposalStatus, getStatusState } from '@/utils/proposals'
+import { ProposalBaseInfo } from '@/types/proposals'
+import {
+  bigIntMax,
+  getCurrentQuorum,
+  getStatusState,
+  TagState,
+} from '@/utils/proposals'
 import { formatPercent, singlePrecision } from '@/helpers'
 
 import ProgressTab from '@/components/utils/ProgressTab.vue'
 import VotingPeriods from '@/components/utils/VotingPeriods.vue'
+import { getProposalStatus, ProposalStatus } from '@/gateway/proposals'
 
 const props = withDefaults(
   defineProps<{
@@ -56,9 +70,12 @@ const props = withDefaults(
   },
 )
 
-const proposalLink = computed(() => `/governance/proposal/${props.proposal!.id}`)
-const proposalStatus = computed(() => getProposalStatus(props.proposal!))
-const statusState = computed(() => getStatusState(proposalStatus.value))
+const proposalStatus = ref<ProposalStatus>('voting-status.none')
+const statusState = ref<TagState>('none')
+
+const proposalLink = computed(
+  () => `/governance/proposal/${props.proposal!.id}`,
+)
 
 const currentQuorum = computed(() => getCurrentQuorum(props.proposal!))
 const requiredQuorum = computed(() => props.proposal!.params.requiredQuorum)
@@ -66,6 +83,15 @@ const requiredQuorum = computed(() => props.proposal!.params.requiredQuorum)
 const leftQuorum = computed(() => {
   return bigIntMax(requiredQuorum.value - currentQuorum.value, 0n).toString()
 })
+
+onMounted(async () => {
+  await updateProposalStatus()
+})
+
+async function updateProposalStatus() {
+  proposalStatus.value = await getProposalStatus(props.proposal!.id)
+  statusState.value = getStatusState(proposalStatus.value)
+}
 </script>
 
 <style lang="scss" scoped>
@@ -76,33 +102,34 @@ const leftQuorum = computed(() => {
   color: var(--app-button-text);
   border-radius: toRem(14);
   padding: var(--field-padding);
-  transition: background-color 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease,
+    border-color 0.3s ease;
 
   &:hover,
   &:focus-visible {
-    border-color: #b0bec5;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border-color: var(--border-primary-dark);
+    box-shadow: 0 toRem(2) toRem(4) rgba(0, 0, 0, 0.1);
   }
 
   &__head {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 10px;
+    margin-bottom: toRem(12);
   }
 
   &__id {
-    color: #757575;
+    color: var(--text-primary-light);
     font-size: 0.9rem;
     display: flex;
-    gap: 8px;
+    gap: toRem(8);
   }
 
   &__title {
     font-size: toRem(24);
-    font-weight: bold;
-    color: #424242;
-    margin: 0;
+    font-weight: 700;
+    color: var(--text-primary-light);
+    margin: toRem(0);
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;

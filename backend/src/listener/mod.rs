@@ -9,7 +9,7 @@ use tokio::sync::Mutex;
 
 use crate::config::{make, Settings};
 use crate::db::{get_database_pool, insert_one_commitment};
-use crate::poseidon_mt::PoseidonHasher;
+use crate::poseidon_mt::{hash_hex, PoseidonHasher};
 use crate::voting::Voting;
 
 pub async fn listen_commitments(
@@ -46,11 +46,13 @@ pub async fn listen_commitments(
 
                 println!("AddedCommitmentFilter event: {:?}", f);
 
-                mt.lock().await.insert_with_index(f.commitment);
+                let prepared_commitment = hash_hex(hex::encode(f.commitment).as_str());
+
+                mt.lock().await.insert_with_index(prepared_commitment);
                 insert_one_commitment(
                     &pool,
                     f.proposal_id.as_u32() as i32,
-                    hex::encode(f.commitment).as_str(),
+                    hex::encode(prepared_commitment).as_str(),
                     f.block_number.as_u32() as i32,
                 )
                 .await?;

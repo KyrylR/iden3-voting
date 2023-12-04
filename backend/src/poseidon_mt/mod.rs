@@ -45,6 +45,15 @@ pub fn hash_str(item: &str) -> [u8; 32] {
     commitment_to_slice(element_hash.into_repr().to_string())
 }
 
+pub fn hash_hex(item: &str) -> [u8; 32] {
+    let hasher = Poseidon::new();
+
+    let encoded_element: Fr = from_hex(item).unwrap();
+    let element_hash = hasher.hash(vec![encoded_element]).unwrap();
+
+    commitment_to_slice(element_hash.into_repr().to_string())
+}
+
 pub fn commitment_to_slice(commitment: String) -> [u8; 32] {
     let commitment_bytes = hex_to_bytes(commitment.as_str()).unwrap();
 

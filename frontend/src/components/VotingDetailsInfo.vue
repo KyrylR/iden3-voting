@@ -33,7 +33,7 @@ const props = withDefaults(
 .voting-details-info {
   display: flex;
   flex-direction: column;
-  background-color: #fff; // Light background for the stats card
+  background-color: var(--background-primary-main);
   border-radius: toRem(12);
   box-shadow: 0 toRem(3) toRem(2) rgba(var(--black-rgb), 0.3),
     0 toRem(2) toRem(6) toRem(2) rgba(var(--black-rgb), 0.15);

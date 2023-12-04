@@ -18,15 +18,8 @@
     />
 
     <span class="checkbox-field__frame-wrp" aria-hidden="true">
-      <span
-        class="checkbox-field__frame"
-        :class="{ 'checkbox-field__frame--checked': modelValue }"
-      >
-        <icon
-          v-if="modelValue"
-          class="checkbox-field__frame-icon"
-          :name="ICON_NAMES.check"
-        />
+      <span class="checkbox-field__frame" :class="{ 'checkbox-field__frame--checked': modelValue }">
+        <icon v-if="modelValue" class="checkbox-field__frame-icon" :name="ICON_NAMES.check" />
       </span>
     </span>
 
