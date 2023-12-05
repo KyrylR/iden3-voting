@@ -1,6 +1,5 @@
 use std::error::Error;
 
-use config::{Config, File, FileFormat};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -12,50 +11,24 @@ pub struct Settings {
     pub tree_height: u64,
 }
 
-pub fn make(path: &str) -> Result<Settings, Box<dyn Error>> {
-    let builder = Config::builder()
-        .add_source(File::new(path, FileFormat::Yaml))
-        .build()?;
+pub fn make() -> Result<Settings, Box<dyn Error>> {
+    dotenvy::dotenv().ok();
+    let rpc_url = std::env::var("RPC_URL").expect("RPC_URL must be set");
+    let contract_address =
+        std::env::var("CONTRACT_ADDRESS").expect("CONTRACT_ADDRESS must be set");
+    let default_from_block = std::env::var("DEFAULT_FROM_BLOCK")
+        .expect("DEFAULT_FROM_BLOCK must be set")
+        .parse::<u64>()?;
+    let abi_path = std::env::var("ABI_PATH").expect("ABI_PATH must be set");
+    let tree_height = std::env::var("TREE_HEIGHT")
+        .expect("TREE_HEIGHT must be set")
+        .parse::<u64>()?;
 
-    Ok(builder.try_deserialize()?)
-}
-
-#[cfg(test)]
-mod tests {
-    use std::fs;
-    use std::fs::File as FsFile;
-    use std::io::Write;
-
-    use super::*;
-
-    #[test]
-    fn test_make() {
-        // Create a temporary YAML file with test settings
-        let yaml_content = r#"
-        rpc_url: "http://localhost:8545"
-        contract_address: "0x123..."
-        default_from_block: 123456
-        abi_path: "/path/to/abi.json"
-        tree_height: 6
-        "#;
-
-        let path = "test_Settings.yaml";
-        let mut file = FsFile::create(path).unwrap();
-        write!(file, "{}", yaml_content).unwrap();
-
-        // Run the make function
-        let result = make(path);
-
-        // Clean up the test file
-        fs::remove_file(path).unwrap();
-
-        // Check the results
-        assert!(result.is_ok());
-        let settings = result.unwrap();
-        assert_eq!(settings.rpc_url, "http://localhost:8545");
-        assert_eq!(settings.contract_address, "0x123...");
-        assert_eq!(settings.default_from_block, 123456);
-        assert_eq!(settings.abi_path, "/path/to/abi.json");
-        assert_eq!(settings.tree_height, 6);
-    }
+    Ok(Settings {
+        rpc_url,
+        contract_address,
+        default_from_block,
+        abi_path,
+        tree_height,
+    })
 }

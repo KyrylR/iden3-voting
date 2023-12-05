@@ -16,7 +16,7 @@ pub async fn listen_commitments(
     from_block: usize,
     mt: Arc<Mutex<MerkleTree<PoseidonHasher>>>,
 ) -> Result<(), Box<dyn Error>> {
-    let config = make("Settings.yaml")?;
+    let config = make()?;
 
     let contract = get_voting_instance(config.clone()).await?;
 
@@ -67,7 +67,7 @@ pub async fn listen_commitments(
 }
 
 pub async fn test_listen() -> Result<(), Box<dyn Error>> {
-    let config = make("Settings.yaml")?;
+    let config = make()?;
 
     let contract = get_voting_instance(config.clone()).await?;
 

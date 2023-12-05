@@ -4,7 +4,7 @@ use std::path::Path;
 use backend::config::make;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let config = make("Settings.yaml").unwrap();
+    let config = make().unwrap();
 
     // Generation of contract bindings (currently, to create a docker image, you need to manually
     // change the generated file to the following lines)

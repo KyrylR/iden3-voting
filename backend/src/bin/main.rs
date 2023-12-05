@@ -70,7 +70,7 @@ async fn main() {
 }
 
 fn build_mt() -> MerkleTree<PoseidonHasher> {
-    let config = make("Settings.yaml").unwrap();
+    let config = make().unwrap();
 
     let initial_elements = vec![hash_str("0"); 2_u32.pow(config.tree_height as u32) as usize];
 

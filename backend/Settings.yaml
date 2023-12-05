@@ -1,5 +1,0 @@
-rpc_url: "wss://rpc-ws.qtestnet.org"
-contract_address: "0x5FD34712FF676beA0E2405A89cc1262047870E27"
-default_from_block: 9956375
-abi_path: "src/abi/Voting.json"
-tree_height: 6

@@ -64,7 +64,7 @@ pub async fn handle_proof(
     Json(payload): Json<ProofRequest>,
     mt: Arc<Mutex<MerkleTree<PoseidonHasher>>>,
 ) -> Result<Json<ProofResponse>, NotFoundError> {
-    let config: Settings = make("Settings.yaml").unwrap();
+    let config: Settings = make().unwrap();
 
     let mt = mt.lock().await;
 
