@@ -1,40 +1,62 @@
-# Voting service based on the iden3 protocol 
+# Voting service ensuring anonymity
 
-A simple implementation of anonymous voting service based on the iden3 protocol with trusted party.
+## Overview
 
-# Description 
+This project comprises four main components:
 
-This service provides a functionality where only eligible parties are able to participate in voting. 
+1. **Circom Schemes**: Utilized for specific cryptographic needs.
+2. **Smart Contracts in Solidity**: Deployed for handling blockchain-based operations.
+3. **Backend in Rust**: Provides robust and efficient server-side functionality.
+4. **Frontend using Vue 3**: Ensures a responsive and interactive user interface.
 
-We have a party that will set who is able to vote (issuer service -- backend). 
-It will be implemented due to [iden3 protocol specification](https://docs.iden3.io/protocol/spec/).
+Together, these components form a unique system known as the **Decentralized Anonymous Voting**.
 
-Voting could have a unique feature (e.g. only those who are older than 18 years old can vote).
+## Connection Guide
 
-# Architecture
+To interact with the system:
 
-## Contracts
+1. **MetaMask Requirement**: Ensure you have MetaMask installed. It's crucial as it provides the provider used to retrieve data from the blockchain.
+2. **Accessing the System**: Connect via the IP `95.179.198.33`.
+3. **Blockchain Network Connection**:
+    - Visit the official blockchain website: [https://hq.q.org/](https://hq.q.org/).
+    - Click on "Connect MetaMask" to join the network.
 
-Core contracts are voting and ZKP verification contracts.
+The system is deployed on the testnet and functions as follows:
 
-Voting is divided into two parts:
-* Commitment phase: where users commit with their ZKP proof from issuer service to be able to vote
-* Voting phase: where users vote with their ZKP of commitment that was done in the commitment phase
+### User Interaction
 
-## Backend
+1. **Creating a Proposal**: A user can initiate a proposal. The target of the proposal can be any context within the Blockchain.
+2. **Proposal Commitment**:
+    - Others can commit to the proposal by providing a hashed value (using Poseidon hash function) of two large random numbers: `secret` and `nullifier`.
+    - This can be represented as `hash(secret | nullifier)`, where `|` is the concatenation.
+    - A fee of 1 ETH is required for the proposal commitment.
+3. **Voting Phase**:
+    - Post the commitment phase, the voting phase commences.
+    - Users must provide an inclusion proof that their commitment was counted in the commitment phase.
+    - Users can vote from any account, provided they supply the correct ZKP proof.
+    - If the voting passes, the proposal can be executed by anyone.
 
-We will have two small services: 
-1. Issuer by iden3 protocol
-2. Service that will store history of commitments for particular voting
+## Chapter: Security Considerations
 
-## Frontend
+### Client-Side Security
 
-Will provided a simple UI for voting and ZKP generations.
+- Secrets never leave the client device and are always stored locally.
 
-## Circuits
+### Circom Circuit Code Example
 
-We will have circuits to generate ZKPs for voting commitment phase. 
+```circom
+// Code for ensuring integrity in the voting process
+signal voterSquare <== voter;
+signal proposalIdSquare <== proposalId;
+```
+
+This code ensures that only the proposal creator can use the generated proof. Each commitment is tied to a specific proposal.
+#### Potential Threats and Mitigations
 
 
+* DDoS via Proposal Commitments: While a DDoS attack is possible by creating numerous commitments, the high fee (1 ETH) and proposal relevance act as deterrents.
+* Additional Protection: In real-world scenarios, further safeguards like limiting commitments to a predefined group of experts could be implemented.
 
+### Overall Security
 
+The system is secure, demonstrating the potential of Zero-Knowledge Proofs (ZKP) in future applications. Vulnerabilities like frontrunning or tree root manipulation in smart contracts are not feasible in this setup.
