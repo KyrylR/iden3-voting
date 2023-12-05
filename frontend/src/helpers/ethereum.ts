@@ -10,15 +10,22 @@ export function isBytesLike(value: string) {
 }
 
 export function isBytes(value: string, bytes: bigint) {
-  return ethers.isBytesLike(value) && ethers.toBigInt(value.replace('0x', '').length) === bytes * 2n
+  return (
+    ethers.isBytesLike(value) &&
+    ethers.toBigInt(value.replace('0x', '').length) === bytes * 2n
+  )
 }
 
 export function formatPercent(value: string | bigint, precision = 2) {
-  return isNaN(Number(value.toString())) ? '0 %' : `${formatNumber(value, precision)} %`
+  return isNaN(Number(value.toString()))
+    ? '0 %'
+    : `${formatNumber(value, precision)} %`
 }
 
 export function formatNumber(value: string | bigint, precision = 4) {
-  return new BigNumber(value.toString()).decimalPlaces(precision, BigNumber.ROUND_DOWN).toFormat()
+  return new BigNumber(value.toString())
+    .decimalPlaces(precision, BigNumber.ROUND_DOWN)
+    .toFormat()
 }
 
 export function singlePrecision(amount?: string | bigint) {

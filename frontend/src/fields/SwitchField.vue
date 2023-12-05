@@ -18,7 +18,10 @@
     />
 
     <span class="switch-field__frame-wrp" aria-hidden="true">
-      <span class="switch-field__frame" :class="{ 'switch-field__frame--checked': modelValue }" />
+      <span
+        class="switch-field__frame"
+        :class="{ 'switch-field__frame--checked': modelValue }"
+      />
     </span>
 
     <span v-if="label" class="switch-field__label">

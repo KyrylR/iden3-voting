@@ -1,5 +1,5 @@
-build/*.js
-dist/*.js
+build
+dist
 config/*.js
 playground
 *.schema.js

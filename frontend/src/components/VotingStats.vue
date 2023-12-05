@@ -56,7 +56,8 @@ import { castAmount } from '@/utils/proposals'
 import { generateSecrets } from '@/gateway/secrets'
 import { useLocalStorage } from '@/composables/use-local-storage'
 
-const { saveSecret, getSecretNumber, getActiveSecretsNumber} = useLocalStorage()
+const { saveSecret, getSecretNumber, getActiveSecretsNumber } =
+  useLocalStorage()
 
 const totalSecretsNumber = ref(0)
 const activeSecretsNumber = ref(0)

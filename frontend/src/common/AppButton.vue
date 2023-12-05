@@ -1,6 +1,11 @@
 <template>
   <template v-if="route">
-    <router-link class="app-button" :class="buttonClasses" v-bind="$attrs" :to="route">
+    <router-link
+      class="app-button"
+      :class="buttonClasses"
+      v-bind="$attrs"
+      :to="route"
+    >
       <icon v-if="iconLeft" class="app-button__icon-left" :name="iconLeft" />
       <template v-if="$slots.default">
         <slot />
@@ -28,7 +33,13 @@
     </a>
   </template>
   <template v-else>
-    <button class="app-button" :class="buttonClasses" v-bind="$attrs" :disabled="isDisabled" :type="buttonType">
+    <button
+      class="app-button"
+      :class="buttonClasses"
+      v-bind="$attrs"
+      :disabled="isDisabled"
+      :type="buttonType"
+    >
       <icon v-if="iconLeft" class="app-button__icon-left" :name="iconLeft" />
       <template v-if="$slots.default">
         <slot />
@@ -80,7 +91,9 @@ const props = withDefaults(
 const attrs = useAttrs()
 const slots = useSlots()
 
-const isDisabled = computed((): boolean => ['', 'disabled', true].includes(attrs.disabled as string | boolean))
+const isDisabled = computed((): boolean =>
+  ['', 'disabled', true].includes(attrs.disabled as string | boolean),
+)
 
 const buttonClasses = computed(() =>
   [
@@ -90,11 +103,15 @@ const buttonClasses = computed(() =>
     `app-button--${props.color}`,
     `app-button--${props.size}`,
     ...(isDisabled.value ? ['app-button--disabled'] : []),
-    ...((props.iconLeft || props.iconRight) && !props.text && !slots.default ? ['app-button--icon-only'] : []),
+    ...((props.iconLeft || props.iconRight) && !props.text && !slots.default
+      ? ['app-button--icon-only']
+      : []),
   ].join(' '),
 )
 
-const buttonType = computed<ButtonType>(() => (attrs.type as ButtonType) || 'button')
+const buttonType = computed<ButtonType>(
+  () => (attrs.type as ButtonType) || 'button',
+)
 </script>
 
 <style lang="scss" scoped>

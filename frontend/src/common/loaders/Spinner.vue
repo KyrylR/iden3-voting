@@ -19,7 +19,8 @@
   margin: toRem(8);
   border-radius: 50%;
   border: toRem(6) solid var(--border-primary-main);
-  border-color: var(--border-primary-main) transparent var(--border-primary-main) transparent;
+  border-color: var(--border-primary-main) transparent
+    var(--border-primary-main) transparent;
   animation: spinner 1.2s linear infinite;
 }
 

@@ -1,6 +1,10 @@
 <template>
   <div class="collapse" ref="rootEl">
-    <transition name="collapse__body-transition" @enter="setHeightCSSVar" @before-leave="setHeightCSSVar">
+    <transition
+      name="collapse__body-transition"
+      @enter="setHeightCSSVar"
+      @before-leave="setHeightCSSVar"
+    >
       <div v-show="isShown" class="collapse__body">
         <slot />
       </div>
@@ -50,7 +54,10 @@ const closeCollapse = () => {
 }
 
 const setHeightCSSVar = (element: Element) => {
-  ;(element as HTMLElement).style.setProperty('--collapse-body-height', `${element.scrollHeight}px`)
+  ;(element as HTMLElement).style.setProperty(
+    '--collapse-body-height',
+    `${element.scrollHeight}px`,
+  )
 }
 </script>
 

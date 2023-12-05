@@ -19,7 +19,11 @@
       </div>
     </div>
     <div class="complex-form__row">
-      <div v-for="(item, idx) in form.array" :key="idx" class="complex-form__field">
+      <div
+        v-for="(item, idx) in form.array"
+        :key="idx"
+        class="complex-form__field"
+      >
         <input-field
           label="form.array[idx]"
           v-model="form.array[idx]"
@@ -29,7 +33,11 @@
       </div>
     </div>
     <div class="complex-form__row">
-      <div v-for="(item, idx) in form.nested.array" :key="idx" class="complex-form__field">
+      <div
+        v-for="(item, idx) in form.nested.array"
+        :key="idx"
+        class="complex-form__field"
+      >
         <input-field
           label="form.nested.array[idx]"
           v-model="form.nested.array[idx]"
@@ -39,7 +47,11 @@
       </div>
     </div>
     <div class="complex-form__row">
-      <div v-for="(item, idx) in form.arrayNested" :key="idx" class="complex-form__field">
+      <div
+        v-for="(item, idx) in form.arrayNested"
+        :key="idx"
+        class="complex-form__field"
+      >
         <input-field
           label="form.arrayNested[idx].field"
           v-model="form.arrayNested[idx].field"
@@ -49,7 +61,12 @@
       </div>
     </div>
     <div class="complex-form__actions">
-      <app-button class="complex-form__submit-btn" type="submit" text="Submit" :disabled="isFormDisabled" />
+      <app-button
+        class="complex-form__submit-btn"
+        type="submit"
+        text="Submit"
+        :disabled="isFormDisabled"
+      />
     </div>
   </div>
 </template>
