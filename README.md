@@ -11,6 +11,15 @@ This project comprises four main components:
 
 Together, these components form a unique system known as the **Decentralized Anonymous Voting**.
 
+## Security Considerations
+
+In the system, there is no trusted party. 
+Users MUST rely on themselves while interacting with the system. 
+Each part of the system, including the contract, can be verified and operated manually by the user. 
+This means they do not need to trust hosted services. Contracts can be verified on-chain for consistency.
+
+So, the overarching principle is to trust no one's word outright and to conduct your own research before using the service.
+
 ## Connection Guide
 
 To interact with the system:
@@ -90,7 +99,8 @@ the protocol specification.
 
 ### Overall Security
 
-The system is secure, demonstrating the potential of Zero-Knowledge Proofs (ZKP) in future applications. Vulnerabilities like frontrunning or tree root manipulation in smart contracts are not feasible in this setup.
+The system is secure, demonstrating the potential of Zero-Knowledge Proofs (ZKP) in future applications. 
+Vulnerabilities like frontrunning or tree root manipulation in smart contracts are not feasible in this setup.
 
 
 #### Contract Security Report
