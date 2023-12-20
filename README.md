@@ -25,7 +25,7 @@ So, the overarching principle is to trust no one's word outright and to conduct 
 To interact with the system:
 
 1. **MetaMask Requirement**: Ensure you have MetaMask installed. It's crucial as it provides the provider used to retrieve data from the blockchain.
-2. **Accessing the System**: Connect via the IP `95.179.198.33`.
+2. **Accessing the System**: Connect via the IP http://95.179.198.33/governance.
 3. **Blockchain Network Connection**:
     - Visit the official blockchain website: [https://hq.q.org/](https://hq.q.org/).
     - Click on "Connect MetaMask" to join the network.
