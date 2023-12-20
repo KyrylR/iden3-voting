@@ -21,11 +21,11 @@
     "lint-sol-fix": "prettier --write \"contracts/**/*.sol\""
   },
   "dependencies": {
-    "@solarity/solidity-lib": "2.5.9",
     "@iden3/contracts": "^1.1.0",
     "@iden3/js-iden3-core": "^1.0.0",
     "@openzeppelin/contracts": "4.9.3",
     "@openzeppelin/contracts-upgradeable": "4.9.3",
+    "@solarity/solidity-lib": "2.5.9",
     "circomlib": "^2.0.5",
     "circomlibjs": "^0.1.7",
     "dotenv": "^16.3.1",
@@ -34,14 +34,14 @@
     "typechain": "^8.3.2"
   },
   "devDependencies": {
-    "@solarity/hardhat-markup": "^1.0.3",
-    "@solarity/hardhat-migrate": "^2.0.0-alpha.16",
     "@metamask/eth-sig-util": "^7.0.0",
-    "@nomicfoundation/hardhat-ethers": "^3.0.4",
     "@nomicfoundation/hardhat-chai-matchers": "^2.0.2",
+    "@nomicfoundation/hardhat-ethers": "^3.0.4",
     "@nomicfoundation/hardhat-network-helpers": "^1.0.9",
     "@nomiclabs/hardhat-truffle5": "^2.0.7",
     "@nomiclabs/hardhat-web3": "^2.0.0",
+    "@solarity/hardhat-markup": "^1.0.3",
+    "@solarity/hardhat-migrate": "file:../../../../Solarity/hardhat-migrate",
     "@typechain/ethers-v6": "^0.5.0",
     "@typechain/hardhat": "^9.0.0",
     "@typechain/truffle-v5": "^8.0.6",
