@@ -5,9 +5,9 @@ import { SignerWithAddress } from "@nomicfoundation/hardhat-ethers/signers";
 
 import { ERC20Mock } from "@ethers-v6";
 
-import { wei } from "@/scripts/utils/utils";
+import { wei } from "@scripts";
 
-import { Reverter } from "@/test/helpers/reverter";
+import { Reverter } from "@test-helpers";
 
 describe("ERC20Mock", () => {
   const reverter = new Reverter();

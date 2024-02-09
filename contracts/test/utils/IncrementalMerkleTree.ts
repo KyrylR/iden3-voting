@@ -3,17 +3,21 @@ import { ethers } from "hardhat";
 
 import { MerkleTree } from "merkletreejs";
 
-import { getPoseidon, poseidonHash } from "@/test/helpers/poseidon-hash";
 import {
+  getPoseidon,
+  poseidonHash,
   buildSparseMerkleTree,
   getBytes32ElementHash,
   getBytes32PoseidonHash,
   getRoot,
-} from "@/test/helpers/merkle-tree-helper";
+  Reverter,
+} from "@test-helpers";
 
 import { IncrementalMerkleTree, PoseidonIMT } from "@ethers-v6";
 
 describe("IncrementalMerkleTree", () => {
+  const reverter = new Reverter();
+
   let poseidonIMT: PoseidonIMT;
   let merkleTree: IncrementalMerkleTree;
 
@@ -23,7 +27,7 @@ describe("IncrementalMerkleTree", () => {
   let treeHeight = 0n;
   let poseidonTreeHeight = 6n;
 
-  beforeEach(async () => {
+  before(async () => {
     const incrementalMerkleTree = await ethers.getContractFactory("IncrementalMerkleTree");
     merkleTree = await incrementalMerkleTree.deploy(treeHeight);
 
@@ -38,7 +42,11 @@ describe("IncrementalMerkleTree", () => {
     });
 
     poseidonIMT = await poseidonIMTFactory.deploy(poseidonTreeHeight);
+
+    await reverter.snapshot();
   });
+
+  afterEach(reverter.revert);
 
   describe("Basic IMT", () => {
     it("should add element to tree", async () => {

@@ -8,30 +8,38 @@ import { poseidonHash } from "@/test/helpers/poseidon-hash";
 import { getBytes32PoseidonHash, getPositionalProof } from "@/test/helpers/merkle-tree-helper";
 import { VerifierHelper } from "@/generated-types/ethers/contracts/Voting";
 
-export interface SecretPair {
+export interface CommitmentFields {
   secret: string;
   nullifier: string;
+  proposalId: string;
 }
 
-export function generateSecrets(): SecretPair {
+export function generateSecrets(proposalId: number): CommitmentFields {
   const secret = ethers.randomBytes(28);
   const nullifier = ethers.randomBytes(28);
 
   return {
     secret: padElement(ethers.hexlify(secret)),
     nullifier: padElement(ethers.hexlify(nullifier)),
+    proposalId: padElement(ethers.toBeHex(proposalId)),
   };
 }
 
-export function getCommitment(pair: SecretPair): string {
-  return poseidonHash(pair.secret + pair.nullifier.replace("0x", ""));
+export function getCommitment(pair: CommitmentFields): string {
+  return poseidonHash(pair.secret + pair.nullifier.replace("0x", "") + pair.proposalId.replace("0x", ""));
 }
 
-export function getNullifierHash(pair: SecretPair): string {
+export function getNullifierHash(pair: CommitmentFields): string {
   return poseidonHash(pair.nullifier);
 }
 
-export async function getZKP(pair: SecretPair, voter: string, proposalId: string, root: string, tree: MerkleTree) {
+export async function getZKP(
+  pair: CommitmentFields,
+  voter: string,
+  proposalId: string,
+  root: string,
+  tree: MerkleTree
+) {
   const leaf = getBytes32PoseidonHash(getCommitment(pair));
   const nullifierHash = getNullifierHash(pair);
 

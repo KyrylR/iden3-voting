@@ -1,18 +1,30 @@
-import { expect } from "chai";
+import { assert, expect } from "chai";
 import { ethers } from "hardhat";
 
 import { MerkleTree } from "merkletreejs";
 
-import { impersonateAccount, time } from "@nomicfoundation/hardhat-network-helpers";
 import { SignerWithAddress } from "@nomicfoundation/hardhat-ethers/signers";
+import { impersonateAccount, time } from "@nomicfoundation/hardhat-network-helpers";
 
 import { Voting, Voting__factory } from "@ethers-v6";
 
-import { getPoseidon, poseidonHash } from "@/test/helpers/poseidon-hash";
-import { generateSecrets, getCommitment, getZKP, SecretPair } from "@/test/helpers/zkp-helper";
-import { buildSparseMerkleTree, getBytes32PoseidonHash, getRoot } from "@/test/helpers/merkle-tree-helper";
+import {
+  CommitmentFields,
+  getZKP,
+  getRoot,
+  getPoseidon,
+  poseidonHash,
+  getCommitment,
+  generateSecrets,
+  buildSparseMerkleTree,
+  getBytes32PoseidonHash,
+  Reverter,
+} from "@test-helpers";
+import { BytesLike } from "ethers";
 
-describe("Voting", () => {
+describe.only("Voting", () => {
+  const reverter = new Reverter();
+
   let OWNER: SignerWithAddress;
   let USER1: SignerWithAddress;
 
@@ -30,7 +42,7 @@ describe("Voting", () => {
     requiredMajority: 100n,
   };
 
-  beforeEach(async () => {
+  before(async () => {
     [OWNER, USER1] = await ethers.getSigners();
 
     const verifierFactory = await ethers.getContractFactory("Groth16Verifier");
@@ -45,7 +57,39 @@ describe("Voting", () => {
     voting = await votingFactory.deploy(treeHeight, await verifier.getAddress());
 
     localMerkleTree = buildSparseMerkleTree(poseidonHash, [], treeHeight);
+
+    await reverter.snapshot();
   });
+
+  afterEach(reverter.revert);
+
+  async function prepareForVoting(
+    proposalId: number,
+    proposalArgs: [remark_: string, proposalData_: Voting.ProposalDataStruct, callData_: BytesLike],
+    previousCommitments: string[] = [],
+    isTimeIncreased: boolean = true
+  ): Promise<[CommitmentFields, string, MerkleTree]> {
+    assert.isTrue((await voting.proposalsCount()) === BigInt(proposalId) - 1n, "Proposal ID is not correct");
+
+    await voting.createProposal(...proposalArgs);
+
+    const pair = generateSecrets(proposalId);
+    const commitment = getCommitment(pair);
+
+    await voting.commitOnProposal(proposalId, commitment, { value: ethers.parseEther("1").toString() });
+
+    const localMerkleTree = buildSparseMerkleTree(
+      poseidonHash,
+      [...previousCommitments, getBytes32PoseidonHash(commitment)],
+      await voting.getHeight()
+    );
+
+    if (isTimeIncreased) {
+      await time.increase(101);
+    }
+
+    return [pair, commitment, localMerkleTree];
+  }
 
   describe("#proposal creation", () => {
     it("should create proposal", async () => {
@@ -119,16 +163,14 @@ describe("Voting", () => {
   });
 
   describe("#commitment", () => {
-    let proposalId: number;
+    let proposalId: number = 1;
 
     beforeEach(async () => {
       await voting.createProposal("remark", DEFAULT_DATA, "0x");
-
-      proposalId = 1;
     });
 
     it("should commit on proposal", async () => {
-      const commitment = getCommitment(generateSecrets());
+      const commitment = getCommitment(generateSecrets(proposalId));
 
       await voting.commitOnProposal(proposalId, commitment, { value: ethers.parseEther("1") });
       localMerkleTree = buildSparseMerkleTree(
@@ -144,7 +186,7 @@ describe("Voting", () => {
     });
 
     it("should not commit without value", async () => {
-      const commitment = getCommitment(generateSecrets());
+      const commitment = getCommitment(generateSecrets(proposalId));
 
       await expect(
         voting.commitOnProposal(proposalId, commitment, { value: ethers.parseEther("0") })
@@ -152,7 +194,7 @@ describe("Voting", () => {
     });
 
     it("should not commit two times", async () => {
-      const commitment = getCommitment(generateSecrets());
+      const commitment = getCommitment(generateSecrets(proposalId));
 
       await voting.commitOnProposal(proposalId, commitment, { value: ethers.parseEther("1") });
       await expect(
@@ -161,7 +203,7 @@ describe("Voting", () => {
     });
 
     it("should not commit after commitment period", async () => {
-      const commitment = getCommitment(generateSecrets());
+      const commitment = getCommitment(generateSecrets(proposalId));
 
       await time.increase(101);
 
@@ -220,33 +262,16 @@ describe("Voting", () => {
   });
 
   describe("#vote", () => {
-    let proposalId: number;
+    let proposalId: number = 1;
 
-    let pair: SecretPair;
+    let pair: CommitmentFields;
     let commitment: string;
 
     beforeEach(async () => {
-      await voting.createProposal("remark", DEFAULT_DATA, "0x");
-
-      proposalId = 1;
-
-      pair = generateSecrets();
-      commitment = getCommitment(pair);
-
-      await voting.commitOnProposal(proposalId, commitment, { value: ethers.parseEther("1").toString() });
-
-      localMerkleTree = buildSparseMerkleTree(
-        poseidonHash,
-        [getBytes32PoseidonHash(commitment)],
-        await voting.getHeight()
-      );
-
-      await time.increase(101);
+      [pair, commitment, localMerkleTree] = await prepareForVoting(proposalId, ["remark", DEFAULT_DATA, "0x"]);
     });
 
-    it.only("should vote for proposal", async () => {
-      console.log(await voting.getRoot());
-      console.log(getRoot(localMerkleTree));
+    it("should vote for proposal", async () => {
       const dataToVerify = await getZKP(
         pair,
         OWNER.address,
@@ -344,31 +369,33 @@ describe("Voting", () => {
     });
 
     it("should not vote before commitment period", async () => {
-      await voting.createProposal("remark", DEFAULT_DATA, "0x");
+      const localProposalId = 2;
 
-      proposalId = 2;
+      let newPair: CommitmentFields;
 
-      const newPair = generateSecrets();
-      const newCommitment = getCommitment(newPair);
-
-      await voting.commitOnProposal(proposalId, newCommitment, { value: ethers.parseEther("1").toString() });
-
-      localMerkleTree = buildSparseMerkleTree(
-        poseidonHash,
-        [getBytes32PoseidonHash(commitment), getBytes32PoseidonHash(newCommitment)],
-        await voting.getHeight()
+      [newPair, , localMerkleTree] = await prepareForVoting(
+        localProposalId,
+        ["remark", DEFAULT_DATA, "0x"],
+        [getBytes32PoseidonHash(commitment)],
+        false
       );
 
       const dataToVerify = await getZKP(
         newPair,
         OWNER.address,
-        proposalId.toString(),
+        localProposalId.toString(),
         await voting.getRoot(),
         localMerkleTree
       );
 
       await expect(
-        voting.voteOnProposal(proposalId, dataToVerify.nullifierHash, await voting.getRoot(), dataToVerify.formattedProof, 0)
+        voting.voteOnProposal(
+          localProposalId,
+          dataToVerify.nullifierHash,
+          await voting.getRoot(),
+          dataToVerify.formattedProof,
+          0
+        )
       ).to.be.revertedWith("Voting: status is not VOTING");
     });
 
@@ -396,9 +423,9 @@ describe("Voting", () => {
   });
 
   describe("#execution", () => {
-    let proposalId: number;
+    let proposalId: number = 1;
 
-    let pair: SecretPair;
+    let pair: CommitmentFields;
     let commitment: string;
 
     beforeEach(async () => {
@@ -412,26 +439,11 @@ describe("Voting", () => {
 
       const votingInterface = Voting__factory.createInterface();
 
-      await voting.createProposal(
+      [pair, commitment, localMerkleTree] = await prepareForVoting(proposalId, [
         "remark",
         proposalData,
-        votingInterface.encodeFunctionData("distributeFunds", [USER1.address, ethers.parseEther("1").toString()])
-      );
-
-      proposalId = 1;
-
-      pair = generateSecrets();
-      commitment = getCommitment(pair);
-
-      await voting.commitOnProposal(proposalId, commitment, { value: ethers.parseEther("1").toString() });
-
-      localMerkleTree = buildSparseMerkleTree(
-        poseidonHash,
-        [getBytes32PoseidonHash(commitment)],
-        await voting.getHeight()
-      );
-
-      await time.increase(101);
+        votingInterface.encodeFunctionData("distributeFunds", [USER1.address, ethers.parseEther("1").toString()]),
+      ]);
 
       const dataToVerify = await getZKP(
         pair,
@@ -479,9 +491,9 @@ describe("Voting", () => {
         votingInterface.encodeFunctionData("distributeFunds", [USER1.address, ethers.parseEther("1").toString()])
       );
 
-      proposalId = 2;
+      const localProposalId = 2;
 
-      await expect(voting.executeProposal(proposalId)).to.be.revertedWith("Voting: status is not EXECUTION");
+      await expect(voting.executeProposal(localProposalId)).to.be.revertedWith("Voting: status is not EXECUTION");
     });
 
     it("should not execute proposal twice", async () => {
@@ -501,37 +513,28 @@ describe("Voting", () => {
 
       const votingInterface = Voting__factory.createInterface();
 
-      await voting.createProposal(
-        "remark",
-        proposalData,
-        votingInterface.encodeFunctionData("distributeFunds", [USER1.address, ethers.parseEther("1").toString()])
+      const localProposalId = 2;
+
+      let [newPair, , localMerkleTree] = await prepareForVoting(
+        localProposalId,
+        [
+          "remark",
+          proposalData,
+          votingInterface.encodeFunctionData("distributeFunds", [USER1.address, ethers.parseEther("1").toString()]),
+        ],
+        [getBytes32PoseidonHash(commitment)]
       );
-
-      proposalId = 2;
-
-      const newPair = generateSecrets();
-      const newCommitment = getCommitment(newPair);
-
-      await voting.commitOnProposal(proposalId, newCommitment, { value: ethers.parseEther("1").toString() });
-
-      localMerkleTree = buildSparseMerkleTree(
-        poseidonHash,
-        [getBytes32PoseidonHash(commitment), getBytes32PoseidonHash(newCommitment)],
-        await voting.getHeight()
-      );
-
-      await time.increase(101);
 
       const dataToVerify = await getZKP(
         newPair,
         OWNER.address,
-        proposalId.toString(),
+        localProposalId.toString(),
         await voting.getRoot(),
         localMerkleTree
       );
 
       await voting.voteOnProposal(
-        proposalId,
+        localProposalId,
         dataToVerify.nullifierHash,
         await voting.getRoot(),
         dataToVerify.formattedProof,
@@ -540,7 +543,7 @@ describe("Voting", () => {
 
       await time.increase(101);
 
-      await expect(voting.executeProposal(proposalId)).to.be.revertedWith("Voting: status is not EXECUTION");
+      await expect(voting.executeProposal(localProposalId)).to.be.revertedWith("Voting: status is not EXECUTION");
     });
 
     it("should not execute proposal with less than required quorum", async () => {
@@ -554,28 +557,21 @@ describe("Voting", () => {
 
       const votingInterface = Voting__factory.createInterface();
 
-      await voting.createProposal(
-        "remark",
-        proposalData,
-        votingInterface.encodeFunctionData("distributeFunds", [USER1.address, ethers.parseEther("1").toString()])
+      const localProposalId = 2;
+
+      [, ,] = await prepareForVoting(
+        localProposalId,
+        [
+          "remark",
+          proposalData,
+          votingInterface.encodeFunctionData("distributeFunds", [USER1.address, ethers.parseEther("1").toString()]),
+        ],
+        [getBytes32PoseidonHash(commitment)]
       );
 
-      proposalId = 2;
+      await time.increase(100);
 
-      const newPair = generateSecrets();
-      const newCommitment = getCommitment(newPair);
-
-      await voting.commitOnProposal(proposalId, newCommitment, { value: ethers.parseEther("1").toString() });
-
-      localMerkleTree = buildSparseMerkleTree(
-        poseidonHash,
-        [getBytes32PoseidonHash(commitment), getBytes32PoseidonHash(newCommitment)],
-        await voting.getHeight()
-      );
-
-      await time.increase(201);
-
-      await expect(voting.executeProposal(proposalId)).to.be.revertedWith("Voting: status is not EXECUTION");
+      await expect(voting.executeProposal(localProposalId)).to.be.revertedWith("Voting: status is not EXECUTION");
     });
 
     it("should not execute proposal if it fails", async () => {
@@ -589,37 +585,30 @@ describe("Voting", () => {
 
       const votingInterface = Voting__factory.createInterface();
 
-      await voting.createProposal(
-        "remark",
-        proposalData,
-        votingInterface.encodeFunctionData("distributeFunds", [USER1.address, ethers.parseEther("10").toString()])
+      const localProposalId = 2;
+
+      let newPair;
+
+      [newPair, , localMerkleTree] = await prepareForVoting(
+        localProposalId,
+        [
+          "remark",
+          proposalData,
+          votingInterface.encodeFunctionData("distributeFunds", [USER1.address, ethers.parseEther("10").toString()]),
+        ],
+        [getBytes32PoseidonHash(commitment)]
       );
-
-      proposalId = 2;
-
-      const newPair = generateSecrets();
-      const newCommitment = getCommitment(newPair);
-
-      await voting.commitOnProposal(proposalId, newCommitment, { value: ethers.parseEther("1").toString() });
-
-      localMerkleTree = buildSparseMerkleTree(
-        poseidonHash,
-        [getBytes32PoseidonHash(commitment), getBytes32PoseidonHash(newCommitment)],
-        await voting.getHeight()
-      );
-
-      await time.increase(101);
 
       const dataToVerify = await getZKP(
         newPair,
         OWNER.address,
-        proposalId.toString(),
+        localProposalId.toString(),
         await voting.getRoot(),
         localMerkleTree
       );
 
       await voting.voteOnProposal(
-        proposalId,
+        localProposalId,
         dataToVerify.nullifierHash,
         await voting.getRoot(),
         dataToVerify.formattedProof,
@@ -628,7 +617,7 @@ describe("Voting", () => {
 
       await time.increase(101);
 
-      await expect(voting.executeProposal(proposalId)).to.be.revertedWith("Voting: proposal execution failed");
+      await expect(voting.executeProposal(localProposalId)).to.be.revertedWith("Voting: proposal execution failed");
     });
 
     it("should execute proposal with zero calldata", async () => {
@@ -640,33 +629,25 @@ describe("Voting", () => {
         requiredMajority: 100n,
       };
 
-      await voting.createProposal("remark", proposalData, "0x");
+      const localProposalId = 2;
 
-      proposalId = 2;
-
-      const newPair = generateSecrets();
-      const newCommitment = getCommitment(newPair);
-
-      await voting.commitOnProposal(proposalId, newCommitment, { value: ethers.parseEther("1").toString() });
-
-      localMerkleTree = buildSparseMerkleTree(
-        poseidonHash,
-        [getBytes32PoseidonHash(commitment), getBytes32PoseidonHash(newCommitment)],
-        await voting.getHeight()
+      let newPair;
+      [newPair, , localMerkleTree] = await prepareForVoting(
+        localProposalId,
+        ["remark", proposalData, "0x"],
+        [getBytes32PoseidonHash(commitment)]
       );
-
-      await time.increase(101);
 
       const dataToVerify = await getZKP(
         newPair,
         OWNER.address,
-        proposalId.toString(),
+        localProposalId.toString(),
         await voting.getRoot(),
         localMerkleTree
       );
 
       await voting.voteOnProposal(
-        proposalId,
+        localProposalId,
         dataToVerify.nullifierHash,
         await voting.getRoot(),
         dataToVerify.formattedProof,
@@ -675,7 +656,7 @@ describe("Voting", () => {
 
       await time.increase(101);
 
-      await expect(voting.executeProposal(proposalId)).to.not.be.reverted;
+      await expect(voting.executeProposal(localProposalId)).to.not.be.reverted;
     });
 
     it("should not execute proposal with zero commitments", async () => {
@@ -689,19 +670,16 @@ describe("Voting", () => {
 
       await voting.createProposal("remark", proposalData, "0x");
 
-      proposalId = 2;
+      const localProposalId = 2;
 
       await time.increase(201);
 
-      await expect(voting.executeProposal(proposalId)).to.be.revertedWith("Voting: status is not EXECUTION");
+      await expect(voting.executeProposal(localProposalId)).to.be.revertedWith("Voting: status is not EXECUTION");
     });
   });
 
   describe("#getters", () => {
-    let proposalId: number;
-
-    let pair: SecretPair;
-    let commitment: string;
+    const proposalId: number = 1;
 
     beforeEach(async () => {
       const proposalData = {
@@ -714,26 +692,11 @@ describe("Voting", () => {
 
       const votingInterface = Voting__factory.createInterface();
 
-      await voting.createProposal(
+      let [pair, , localMerkleTree] = await prepareForVoting(proposalId, [
         "remark",
         proposalData,
-        votingInterface.encodeFunctionData("distributeFunds", [USER1.address, ethers.parseEther("1").toString()])
-      );
-
-      proposalId = 1;
-
-      pair = generateSecrets();
-      commitment = getCommitment(pair);
-
-      await voting.commitOnProposal(proposalId, commitment, { value: ethers.parseEther("1").toString() });
-
-      localMerkleTree = buildSparseMerkleTree(
-        poseidonHash,
-        [getBytes32PoseidonHash(commitment)],
-        await voting.getHeight()
-      );
-
-      await time.increase(101);
+        votingInterface.encodeFunctionData("distributeFunds", [USER1.address, ethers.parseEther("1").toString()]),
+      ]);
 
       const dataToVerify = await getZKP(
         pair,

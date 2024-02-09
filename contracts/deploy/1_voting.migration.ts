@@ -1,18 +1,22 @@
-import { Deployer, Reporter } from "@solarity/hardhat-migrate";
-import { Voting__factory, Groth16Verifier__factory } from "@ethers-v6";
-import { generateSecrets, getCommitment, getNullifierHash, getZKP } from "@/test/helpers/zkp-helper";
 import { ethers } from "hardhat";
+
+import { Deployer, Reporter } from "@solarity/hardhat-migrate";
+
+import { Voting__factory, Groth16Verifier__factory } from "@ethers-v6";
+
+import { generateSecrets, getCommitment, getZKP } from "@/test/helpers/zkp-helper";
+
 import {
   buildSparseMerkleTree,
   getBytes32PoseidonHash,
   getPositionalProof,
-  getRoot
+  getRoot,
 } from "@/test/helpers/merkle-tree-helper";
 import { getPoseidon, poseidonHash } from "@/test/helpers/poseidon-hash";
 
 export = async (deployer: Deployer) => {
   const verifier = await deployer.deploy(Groth16Verifier__factory);
-  const voting = await deployer.deploy(Voting__factory, [6, verifier.address], {
+  const voting = await deployer.deploy(Voting__factory, [6, await verifier.getAddress()], {
     libraries: {
       PoseidonUnit1L: await (await getPoseidon(1)).getAddress(),
       PoseidonUnit2L: await (await getPoseidon(2)).getAddress(),
@@ -46,20 +50,20 @@ export = async (deployer: Deployer) => {
   const localMerkleTree = buildSparseMerkleTree(
     poseidonHash,
     [
-       getBytes32PoseidonHash(commitment1),
-       getBytes32PoseidonHash(commitment2),
-       getBytes32PoseidonHash(commitment3),
-       getBytes32PoseidonHash(commitment4),
-       getBytes32PoseidonHash(commitment5),
+      getBytes32PoseidonHash(commitment1),
+      getBytes32PoseidonHash(commitment2),
+      getBytes32PoseidonHash(commitment3),
+      getBytes32PoseidonHash(commitment4),
+      getBytes32PoseidonHash(commitment5),
     ],
     6n
   );
 
-  await (await voting.commitOnProposal(proposalId,  commitment1, { value: ethers.parseEther("1") })).wait();
-  await (await voting.commitOnProposal(proposalId,  commitment2, { value: ethers.parseEther("1") })).wait();
-  await (await voting.commitOnProposal(proposalId,  commitment3, { value: ethers.parseEther("1") })).wait();
-  await (await voting.commitOnProposal(proposalId,  commitment4, { value: ethers.parseEther("1") })).wait();
-  await (await voting.commitOnProposal(proposalId,  commitment5, { value: ethers.parseEther("1") })).wait();
+  await (await voting.commitOnProposal(proposalId, commitment1, { value: ethers.parseEther("1") })).wait();
+  await (await voting.commitOnProposal(proposalId, commitment2, { value: ethers.parseEther("1") })).wait();
+  await (await voting.commitOnProposal(proposalId, commitment3, { value: ethers.parseEther("1") })).wait();
+  await (await voting.commitOnProposal(proposalId, commitment4, { value: ethers.parseEther("1") })).wait();
+  await (await voting.commitOnProposal(proposalId, commitment5, { value: ethers.parseEther("1") })).wait();
 
   console.log("Leafs: ");
   console.log(localMerkleTree.getLeaves());
@@ -67,20 +71,14 @@ export = async (deployer: Deployer) => {
   console.log("leaf to prove: ", commitment1);
   console.log("leaf to prove: ", getBytes32PoseidonHash(commitment1));
 
-  let [pathIndices, pathElements] = getPositionalProof(
-    localMerkleTree,
-    getBytes32PoseidonHash(commitment1)
-  );
+  let [pathIndices, pathElements] = getPositionalProof(localMerkleTree, getBytes32PoseidonHash(commitment1));
 
   console.log("result: ", pathIndices, pathElements);
 
   console.log("leaf to prove: ", commitment2);
   console.log("leaf to prove: ", getBytes32PoseidonHash(commitment2));
 
-  [pathIndices, pathElements] = getPositionalProof(
-    localMerkleTree,
-    getBytes32PoseidonHash(commitment2)
-  );
+  [pathIndices, pathElements] = getPositionalProof(localMerkleTree, getBytes32PoseidonHash(commitment2));
 
   console.log("result: ", pathIndices, pathElements);
 
@@ -131,5 +129,5 @@ export = async (deployer: Deployer) => {
 
   console.log("pair2: dataToVerify: ", dataToVerify);
 
-  Reporter.reportContracts(["Verifier", verifier.address], ["Voting", voting.address]);
+  Reporter.reportContracts(["Verifier", await verifier.getAddress()], ["Voting", await voting.getAddress()]);
 };

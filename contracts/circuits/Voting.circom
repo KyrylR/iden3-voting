@@ -7,17 +7,19 @@ include "../node_modules/circomlib/circuits/poseidon.circom";
 template CommitmentHasher() {
     signal input secret;
     signal input nullifier;
+    signal input proposalId;
 
     signal output commitment;
     signal output nullifierHash;
 
-    component commitmentHasher = Poseidon(2);
+    component commitmentHasher = Poseidon(3);
     component nullifierHasher = Poseidon(1);
 
     nullifierHasher.inputs[0] <== nullifier;
 
     commitmentHasher.inputs[0] <== secret;
     commitmentHasher.inputs[1] <== nullifier;
+    commitmentHasher.inputs[2] <== proposalId;
 
     commitment <== commitmentHasher.out;
     nullifierHash <== nullifierHasher.out;
@@ -99,7 +101,7 @@ template Voting(levels) {
     signal input nullifierHash;
 
     signal input voter; // not taking part in any computations
-    signal input proposalId; // not taking part in any computations
+    signal input proposalId;
 
     signal input secret;
     signal input nullifier;
@@ -111,6 +113,8 @@ template Voting(levels) {
 
     hasher.secret <== secret;
     hasher.nullifier <== nullifier;
+    hasher.proposalId <== proposalId;
+
     hasher.nullifierHash === nullifierHash;
 
     component tree = LeafExists(levels);
