@@ -1,7 +1,6 @@
 import { assert, expect } from "chai";
+import { BytesLike } from "ethers";
 import { ethers } from "hardhat";
-
-import { MerkleTree } from "merkletreejs";
 
 import { SignerWithAddress } from "@nomicfoundation/hardhat-ethers/signers";
 import { impersonateAccount, time } from "@nomicfoundation/hardhat-network-helpers";
@@ -11,18 +10,14 @@ import { Voting, Voting__factory } from "@ethers-v6";
 import {
   CommitmentFields,
   getZKP,
-  getRoot,
   getPoseidon,
-  poseidonHash,
   getCommitment,
   generateSecrets,
-  buildSparseMerkleTree,
-  getBytes32PoseidonHash,
-  Reverter,
+  Reverter, getBytes32PoseidonHash
 } from "@test-helpers";
-import { BytesLike } from "ethers";
 
-describe.only("Voting", () => {
+
+describe("Voting", () => {
   const reverter = new Reverter();
 
   let OWNER: SignerWithAddress;
@@ -30,9 +25,7 @@ describe.only("Voting", () => {
 
   let voting: Voting;
 
-  let localMerkleTree: MerkleTree;
-
-  let treeHeight = 6n;
+  let treeHeight = 80n;
 
   const DEFAULT_DATA = {
     commitmentPeriod: 100n,
@@ -48,15 +41,14 @@ describe.only("Voting", () => {
     const verifierFactory = await ethers.getContractFactory("Groth16Verifier");
     const verifier = await verifierFactory.deploy();
 
-    const votingFactory = await ethers.getContractFactory("Voting", {
+    const Voting = await ethers.getContractFactory("Voting", {
       libraries: {
         PoseidonUnit1L: await (await getPoseidon(1)).getAddress(),
         PoseidonUnit2L: await (await getPoseidon(2)).getAddress(),
+        PoseidonUnit3L: await (await getPoseidon(3)).getAddress(),
       },
     });
-    voting = await votingFactory.deploy(treeHeight, await verifier.getAddress());
-
-    localMerkleTree = buildSparseMerkleTree(poseidonHash, [], treeHeight);
+    voting = await Voting.deploy(treeHeight, await verifier.getAddress());
 
     await reverter.snapshot();
   });
@@ -66,9 +58,8 @@ describe.only("Voting", () => {
   async function prepareForVoting(
     proposalId: number,
     proposalArgs: [remark_: string, proposalData_: Voting.ProposalDataStruct, callData_: BytesLike],
-    previousCommitments: string[] = [],
     isTimeIncreased: boolean = true
-  ): Promise<[CommitmentFields, string, MerkleTree]> {
+  ): Promise<[CommitmentFields, string]> {
     assert.isTrue((await voting.proposalsCount()) === BigInt(proposalId) - 1n, "Proposal ID is not correct");
 
     await voting.createProposal(...proposalArgs);
@@ -78,17 +69,11 @@ describe.only("Voting", () => {
 
     await voting.commitOnProposal(proposalId, commitment, { value: ethers.parseEther("1").toString() });
 
-    const localMerkleTree = buildSparseMerkleTree(
-      poseidonHash,
-      [...previousCommitments, getBytes32PoseidonHash(commitment)],
-      await voting.getHeight()
-    );
-
     if (isTimeIncreased) {
       await time.increase(101);
     }
 
-    return [pair, commitment, localMerkleTree];
+    return [pair, commitment];
   }
 
   describe("#proposal creation", () => {
@@ -173,16 +158,12 @@ describe.only("Voting", () => {
       const commitment = getCommitment(generateSecrets(proposalId));
 
       await voting.commitOnProposal(proposalId, commitment, { value: ethers.parseEther("1") });
-      localMerkleTree = buildSparseMerkleTree(
-        poseidonHash,
-        [getBytes32PoseidonHash(commitment)],
-        await voting.getHeight()
-      );
 
+      const node = await voting.getNodeByKey(getBytes32PoseidonHash(commitment));
+
+      expect(node.value).to.equal(commitment);
       expect(await voting.commitments(commitment)).to.be.true;
       expect(await ethers.provider.getBalance(await voting.getAddress())).to.equal(ethers.parseEther("1"));
-
-      expect(await voting.getRoot()).to.equal(getRoot(localMerkleTree));
     });
 
     it("should not commit without value", async () => {
@@ -265,20 +246,13 @@ describe.only("Voting", () => {
     let proposalId: number = 1;
 
     let pair: CommitmentFields;
-    let commitment: string;
 
     beforeEach(async () => {
-      [pair, commitment, localMerkleTree] = await prepareForVoting(proposalId, ["remark", DEFAULT_DATA, "0x"]);
+      [pair,] = await prepareForVoting(proposalId, ["remark", DEFAULT_DATA, "0x"]);
     });
 
     it("should vote for proposal", async () => {
-      const dataToVerify = await getZKP(
-        pair,
-        OWNER.address,
-        proposalId.toString(),
-        await voting.getRoot(),
-        localMerkleTree
-      );
+      const dataToVerify = await getZKP(voting, pair, OWNER.address, proposalId.toString());
 
       await voting.voteOnProposal(
         proposalId,
@@ -290,13 +264,7 @@ describe.only("Voting", () => {
     });
 
     it("should vote against proposal", async () => {
-      const dataToVerify = await getZKP(
-        pair,
-        OWNER.address,
-        proposalId.toString(),
-        await voting.getRoot(),
-        localMerkleTree
-      );
+      const dataToVerify = await getZKP(voting, pair, OWNER.address, proposalId.toString());
 
       await voting.voteOnProposal(
         proposalId,
@@ -308,13 +276,7 @@ describe.only("Voting", () => {
     });
 
     it("should not vote with same nullifier", async () => {
-      const dataToVerify = await getZKP(
-        pair,
-        OWNER.address,
-        proposalId.toString(),
-        await voting.getRoot(),
-        localMerkleTree
-      );
+      const dataToVerify = await getZKP(voting, pair, OWNER.address, proposalId.toString());
 
       await voting.voteOnProposal(
         proposalId,
@@ -335,13 +297,7 @@ describe.only("Voting", () => {
     });
 
     it("should not vote with wrong root", async () => {
-      const dataToVerify = await getZKP(
-        pair,
-        OWNER.address,
-        proposalId.toString(),
-        await voting.getRoot(),
-        localMerkleTree
-      );
+      const dataToVerify = await getZKP(voting, pair, OWNER.address, proposalId.toString());
 
       await expect(
         voting.voteOnProposal(proposalId, dataToVerify.nullifierHash, ethers.ZeroHash, dataToVerify.formattedProof, 0)
@@ -349,13 +305,7 @@ describe.only("Voting", () => {
     });
 
     it("should not vote with wrong proof", async () => {
-      const dataToVerify = await getZKP(
-        pair,
-        USER1.address,
-        proposalId.toString(),
-        await voting.getRoot(),
-        localMerkleTree
-      );
+      const dataToVerify = await getZKP(voting, pair, USER1.address, proposalId.toString());
 
       await expect(
         voting.voteOnProposal(
@@ -373,20 +323,9 @@ describe.only("Voting", () => {
 
       let newPair: CommitmentFields;
 
-      [newPair, , localMerkleTree] = await prepareForVoting(
-        localProposalId,
-        ["remark", DEFAULT_DATA, "0x"],
-        [getBytes32PoseidonHash(commitment)],
-        false
-      );
+      [newPair] = await prepareForVoting(localProposalId, ["remark", DEFAULT_DATA, "0x"], false);
 
-      const dataToVerify = await getZKP(
-        newPair,
-        OWNER.address,
-        localProposalId.toString(),
-        await voting.getRoot(),
-        localMerkleTree
-      );
+      const dataToVerify = await getZKP(voting, newPair, OWNER.address, localProposalId.toString());
 
       await expect(
         voting.voteOnProposal(
@@ -400,13 +339,7 @@ describe.only("Voting", () => {
     });
 
     it("should not vote after voting period", async () => {
-      const dataToVerify = await getZKP(
-        pair,
-        OWNER.address,
-        proposalId.toString(),
-        await voting.getRoot(),
-        localMerkleTree
-      );
+      const dataToVerify = await getZKP(voting, pair, OWNER.address, proposalId.toString());
 
       await time.increase(101);
 
@@ -439,19 +372,13 @@ describe.only("Voting", () => {
 
       const votingInterface = Voting__factory.createInterface();
 
-      [pair, commitment, localMerkleTree] = await prepareForVoting(proposalId, [
+      [pair, commitment] = await prepareForVoting(proposalId, [
         "remark",
         proposalData,
         votingInterface.encodeFunctionData("distributeFunds", [USER1.address, ethers.parseEther("1").toString()]),
       ]);
 
-      const dataToVerify = await getZKP(
-        pair,
-        OWNER.address,
-        proposalId.toString(),
-        await voting.getRoot(),
-        localMerkleTree
-      );
+      const dataToVerify = await getZKP(voting, pair, OWNER.address, proposalId.toString());
 
       await voting.voteOnProposal(
         proposalId,
@@ -515,23 +442,13 @@ describe.only("Voting", () => {
 
       const localProposalId = 2;
 
-      let [newPair, , localMerkleTree] = await prepareForVoting(
-        localProposalId,
-        [
-          "remark",
-          proposalData,
-          votingInterface.encodeFunctionData("distributeFunds", [USER1.address, ethers.parseEther("1").toString()]),
-        ],
-        [getBytes32PoseidonHash(commitment)]
-      );
+      let [newPair, ,] = await prepareForVoting(localProposalId, [
+        "remark",
+        proposalData,
+        votingInterface.encodeFunctionData("distributeFunds", [USER1.address, ethers.parseEther("1").toString()]),
+      ]);
 
-      const dataToVerify = await getZKP(
-        newPair,
-        OWNER.address,
-        localProposalId.toString(),
-        await voting.getRoot(),
-        localMerkleTree
-      );
+      const dataToVerify = await getZKP(voting, newPair, OWNER.address, localProposalId.toString());
 
       await voting.voteOnProposal(
         localProposalId,
@@ -559,15 +476,11 @@ describe.only("Voting", () => {
 
       const localProposalId = 2;
 
-      [, ,] = await prepareForVoting(
-        localProposalId,
-        [
-          "remark",
-          proposalData,
-          votingInterface.encodeFunctionData("distributeFunds", [USER1.address, ethers.parseEther("1").toString()]),
-        ],
-        [getBytes32PoseidonHash(commitment)]
-      );
+      [,] = await prepareForVoting(localProposalId, [
+        "remark",
+        proposalData,
+        votingInterface.encodeFunctionData("distributeFunds", [USER1.address, ethers.parseEther("1").toString()]),
+      ]);
 
       await time.increase(100);
 
@@ -589,23 +502,13 @@ describe.only("Voting", () => {
 
       let newPair;
 
-      [newPair, , localMerkleTree] = await prepareForVoting(
-        localProposalId,
-        [
-          "remark",
-          proposalData,
-          votingInterface.encodeFunctionData("distributeFunds", [USER1.address, ethers.parseEther("10").toString()]),
-        ],
-        [getBytes32PoseidonHash(commitment)]
-      );
+      [newPair] = await prepareForVoting(localProposalId, [
+        "remark",
+        proposalData,
+        votingInterface.encodeFunctionData("distributeFunds", [USER1.address, ethers.parseEther("10").toString()]),
+      ]);
 
-      const dataToVerify = await getZKP(
-        newPair,
-        OWNER.address,
-        localProposalId.toString(),
-        await voting.getRoot(),
-        localMerkleTree
-      );
+      const dataToVerify = await getZKP(voting, newPair, OWNER.address, localProposalId.toString());
 
       await voting.voteOnProposal(
         localProposalId,
@@ -632,19 +535,9 @@ describe.only("Voting", () => {
       const localProposalId = 2;
 
       let newPair;
-      [newPair, , localMerkleTree] = await prepareForVoting(
-        localProposalId,
-        ["remark", proposalData, "0x"],
-        [getBytes32PoseidonHash(commitment)]
-      );
+      [newPair, ,] = await prepareForVoting(localProposalId, ["remark", proposalData, "0x"]);
 
-      const dataToVerify = await getZKP(
-        newPair,
-        OWNER.address,
-        localProposalId.toString(),
-        await voting.getRoot(),
-        localMerkleTree
-      );
+      const dataToVerify = await getZKP(voting, newPair, OWNER.address, localProposalId.toString());
 
       await voting.voteOnProposal(
         localProposalId,
@@ -692,19 +585,13 @@ describe.only("Voting", () => {
 
       const votingInterface = Voting__factory.createInterface();
 
-      let [pair, , localMerkleTree] = await prepareForVoting(proposalId, [
+      let [pair, ,] = await prepareForVoting(proposalId, [
         "remark",
         proposalData,
         votingInterface.encodeFunctionData("distributeFunds", [USER1.address, ethers.parseEther("1").toString()]),
       ]);
 
-      const dataToVerify = await getZKP(
-        pair,
-        OWNER.address,
-        proposalId.toString(),
-        await voting.getRoot(),
-        localMerkleTree
-      );
+      const dataToVerify = await getZKP(voting, pair, OWNER.address, proposalId.toString());
 
       await voting.voteOnProposal(
         proposalId,

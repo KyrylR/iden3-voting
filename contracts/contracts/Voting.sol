@@ -5,14 +5,13 @@ import {TypeCaster} from "@solarity/solidity-lib/libs/utils/TypeCaster.sol";
 
 import {VerifierHelper} from "@solarity/solidity-lib/libs/zkp/snarkjs/VerifierHelper.sol";
 
-import {PoseidonIMT} from "./utils/PoseidonIMT.sol";
+import {PoseidonSMT} from "./utils/PoseidonSMT.sol";
 
 /**
  * @title Voting Contract
  * @notice Implements a decentralized voting system with privacy guarantees.
- * Inherits from PoseidonIMT for Merkle Tree functionalities.
  */
-contract Voting is PoseidonIMT {
+contract Voting is PoseidonSMT {
     using TypeCaster for *; // TypeCaster library for type conversions.
     using VerifierHelper for address; // VerifierHelper library for zk-SNARK proof verification.
 
@@ -137,7 +136,9 @@ contract Voting is PoseidonIMT {
      *
      * The tree height used in the verifier contract must match `treeHeight_`.
      */
-    constructor(uint256 treeHeight_, address verifier_) PoseidonIMT(treeHeight_) {
+    constructor(uint256 treeHeight_, address verifier_) {
+        __PoseidonSMT_init(treeHeight_);
+
         verifier = verifier_;
     }
 
@@ -245,7 +246,7 @@ contract Voting is PoseidonIMT {
         ProposalStatus status_ = getProposalStatus(proposalId_);
         require(status_ == ProposalStatus.COMMITMENT, "Voting: status is not COMMITMENT");
 
-        add(commitment_);
+        _add(commitment_);
         commitments[commitment_] = true;
         rootsHistory[getRoot()] = true;
 

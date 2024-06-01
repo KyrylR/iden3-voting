@@ -1,6 +1,3 @@
-import "@nomiclabs/hardhat-web3";
-import "@nomiclabs/hardhat-truffle5";
-
 import "@nomicfoundation/hardhat-ethers";
 import "@nomicfoundation/hardhat-chai-matchers";
 
