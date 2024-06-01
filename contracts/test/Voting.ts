@@ -13,9 +13,9 @@ import {
   getPoseidon,
   getCommitment,
   generateSecrets,
-  Reverter, getBytes32PoseidonHash
+  Reverter,
+  getBytes32PoseidonHash,
 } from "@test-helpers";
-
 
 describe("Voting", () => {
   const reverter = new Reverter();
@@ -248,7 +248,7 @@ describe("Voting", () => {
     let pair: CommitmentFields;
 
     beforeEach(async () => {
-      [pair,] = await prepareForVoting(proposalId, ["remark", DEFAULT_DATA, "0x"]);
+      [pair] = await prepareForVoting(proposalId, ["remark", DEFAULT_DATA, "0x"]);
     });
 
     it("should vote for proposal", async () => {
