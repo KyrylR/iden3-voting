@@ -37,7 +37,7 @@ export function getCommitment(pair: SecretPair): string {
 }
 
 export function getNullifierHash(pair: SecretPair): string {
-  return poseidonHash(pair.nullifier)
+  return poseidonHash(pair.nullifier + ethers.toBeHex(pair.proposalId, 32).replace('0x', ''))
 }
 
 export function getBytes32PoseidonHash(element: string) {
@@ -50,20 +50,6 @@ export async function getZKP(contract: Voting, pair: SecretPair, voter: string, 
   const nullifierHash = getNullifierHash(pair)
 
   const smtProof = await contract.getProof(leaf)
-
-  console.log({
-    root: smtProof.root,
-    nullifierHash,
-    voter,
-    proposalId,
-    secret: pair.secret,
-    nullifier: pair.nullifier,
-    siblings: smtProof.siblings,
-    auxKey: smtProof.auxKey,
-    auxValue: smtProof.auxValue,
-    auxIsEmpty: smtProof.auxExistence,
-    isExclusion: 0,
-  })
 
   const { proof } = await snarkjs.groth16.fullProve(
     {

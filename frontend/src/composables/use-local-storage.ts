@@ -70,16 +70,12 @@ export function useLocalStorage() {
 
     const unzipped = storedSecrets ? JSON.parse(storedSecrets) : []
 
-    console.log('unzipped', unzipped)
-
     const keys = unzipped.map((pair: string[]) => pair[0])
     const values = unzipped.map((pair: string[]) => pair[1])
 
     const store: ActiveSecretStore = {}
 
     keys.forEach((key: string, index: number) => (store[key] = values[index]))
-
-    console.log(store)
 
     return store
   }

@@ -28,7 +28,7 @@ export function getCommitment(pair: CommitmentFields): string {
 }
 
 export function getNullifierHash(pair: CommitmentFields): string {
-  return poseidonHash(pair.nullifier);
+  return poseidonHash(pair.nullifier + pair.proposalId.replace("0x", ""));
 }
 
 export async function getZKP(contract: Voting, pair: CommitmentFields, voter: string, proposalId: string) {
