@@ -17,10 +17,8 @@ declare module '@vue/runtime-core' {
 interface ImportMetaEnv {
   VITE_ENVIRONMENT: string
   VITE_PORT: string
-  VITE_API_URL: string
   VITE_APP_NAME: string
   VITE_APP_VOTING_CONTRACT_ADDRESS: string
-  VITE_APP_API_URL: string
 }
 
 interface EthereumProvider extends ethers.Provider {

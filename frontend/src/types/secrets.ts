@@ -1,6 +1,7 @@
 export interface SecretPair {
   secret: string
   nullifier: string
+  proposalId: string
 }
 
 export type SecretStatus = 'active' | 'used' | 'free'

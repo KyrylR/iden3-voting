@@ -23,11 +23,7 @@
       @click="handleButtonClick"
     />
 
-    <basic-modal
-      class="option-modal"
-      v-model:is-shown="isModalShown"
-      :title="`Voting Option`"
-    >
+    <basic-modal class="option-modal" v-model:is-shown="isModalShown" :title="`Voting Option`">
       <div class="option-modal__modal-options">
         <app-button
           class="option-modal__modal-options__modal-option-button"
@@ -35,7 +31,7 @@
           modification="border-rounded"
           :color="'success'"
           :icon-left="$icons.plus"
-          :scheme="'flat'"
+          :scheme="'filled'"
           :text="$t('common.yes')"
           @click="handleVoteOption(true)"
         />
@@ -45,7 +41,7 @@
           modification="border-rounded"
           :color="'error'"
           :icon-left="$icons.minus"
-          :scheme="'flat'"
+          :scheme="'filled'"
           :text="$t('common.no')"
           @click="handleVoteOption(false)"
         />
@@ -138,8 +134,7 @@ const handleButtonClick = async () => {
   }
 }
 
-const { getActiveSecret, useActiveSecret, getSecret, useSecret } =
-  useLocalStorage()
+const { getActiveSecret, useActiveSecret, getSecret, useSecret } = useLocalStorage()
 
 const isModalShown = ref(false)
 
@@ -158,17 +153,15 @@ const handleVoteOption = async (voteYes: boolean) => {
     return
   }
 
-  if (
-    await (
-      await voteOnProposal(props.proposal.id, activeSecret.secret, voteValue)
-    ).wait()
-  ) {
+  const tx = await voteOnProposal(props.proposal.id, activeSecret.secret, voteValue)
+
+  isModalShown.value = false
+
+  if (await tx.wait()) {
     useActiveSecret(props.proposal.id, activeSecret)
   }
 
   await updateProposalStatus()
-
-  isModalShown.value = false
 }
 
 async function handleCommitmentClick() {
@@ -211,8 +204,7 @@ watch(
   align-items: center;
   justify-content: space-between;
   gap: toRem(24);
-  padding: toRem(36) var(--voting-app-padding-left) toRem(36)
-    var(--voting-app-padding-right);
+  padding: toRem(36) var(--voting-app-padding-left) toRem(36) var(--voting-app-padding-right);
   background: var(--background-primary-main);
   border-bottom: var(--border-primary-main);
 

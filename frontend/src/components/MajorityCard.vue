@@ -6,17 +6,14 @@
     <div class="proposal-majority__voting">
       <div class="proposal-majority__voting__header__majority">
         <div class="proposal-majority__voting__header__majority__current">
-          {{
-            $t('proposal-majority.requirement') +
-            ' > ' +
-            formatPercent(singlePrecision(requiredMajority))
-          }}
+          {{ $t('proposal-majority.requirement') + ' > ' + formatPercent(singlePrecision(requiredMajority)) }}
         </div>
       </div>
       <progress-tab
         :value="Number(votedFor)"
         :max="Number(combinedVotes)"
         :track-color="trackColor"
+        :value-color="valueColor"
         class="proposal-majority__voting__progress"
       />
       <div class="proposal-majority__voting__footer__majority">
@@ -48,6 +45,7 @@ import { ProposalBaseInfo } from '@/types/proposals'
 import { formatPercent, singlePrecision } from '@/helpers'
 
 import ProgressTab from '@/components/utils/ProgressTab.vue'
+import { valueColor } from '@/constants'
 
 const props = withDefaults(
   defineProps<{

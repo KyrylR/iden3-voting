@@ -1,6 +1,3 @@
-import "@nomiclabs/hardhat-web3";
-import "@nomiclabs/hardhat-truffle5";
-
 import "@nomicfoundation/hardhat-ethers";
 import "@nomicfoundation/hardhat-chai-matchers";
 
@@ -94,7 +91,7 @@ const config: HardhatUserConfig = {
     strict: false,
   },
   gasReporter: {
-    enabled: false,
+    enabled: true,
   },
   typechain: {
     outDir: `generated-types/${typechainTarget().split("-")[0]}`,

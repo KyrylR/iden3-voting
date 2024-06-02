@@ -6,23 +6,17 @@
     <div class="proposal-quorum__voting">
       <div class="proposal-quorum__voting__header__quorum">
         <div class="proposal-quorum__voting__header__quorum__current">
-          {{
-            $t('proposal-quorum.quorum') +
-            ' ' +
-            formatPercent(singlePrecision(currentQuorum))
-          }}
+          {{ $t('proposal-quorum.quorum') + ' ' + formatPercent(singlePrecision(currentQuorum)) }}
         </div>
         <div class="proposal-quorum__voting__header__quorum__left">
-          {{
-            formatPercent(singlePrecision(leftQuorum)) +
-            ' ' +
-            $t('proposal-quorum.quorum-required')
-          }}
+          {{ formatPercent(singlePrecision(leftQuorum)) + ' ' + $t('proposal-quorum.quorum-required') }}
         </div>
       </div>
       <progress-tab
         :value="Number(singlePrecision(currentQuorum))"
         :max="Number(singlePrecision(requiredQuorum))"
+        :track-color="trackColor"
+        :value-color="valueColor"
         class="proposal-quorum__voting__progress"
       />
       <div class="proposal-quorum__voting__footer__quorum">
@@ -55,6 +49,7 @@ import { bigIntMax, getCurrentQuorum } from '@/utils/proposals'
 import { formatPercent, singlePrecision } from '@/helpers'
 
 import ProgressTab from '@/components/utils/ProgressTab.vue'
+import { trackColor, valueColor } from '@/constants'
 
 const props = withDefaults(
   defineProps<{
@@ -66,10 +61,7 @@ const props = withDefaults(
 )
 
 const commitments = computed(() => props.proposal!.counters.commitments)
-const voted = computed(
-  () =>
-    props.proposal!.counters.votedFor + props.proposal!.counters.votedAgainst,
-)
+const voted = computed(() => props.proposal!.counters.votedFor + props.proposal!.counters.votedAgainst)
 const notVoted = computed(() => commitments.value - voted.value)
 
 const currentQuorum = computed(() => getCurrentQuorum(props.proposal!))

@@ -2,12 +2,11 @@
 
 ## Overview
 
-This project comprises four main components:
+This project comprises three main components:
 
 1. **Circom Schemes**: Utilized for specific cryptographic needs.
 2. **Smart Contracts in Solidity**: Deployed for handling blockchain-based operations.
-3. **Backend in Rust**: Provides robust and efficient server-side functionality.
-4. **Frontend using Vue 3**: Ensures a responsive and interactive user interface.
+3. **Frontend using Vue 3**: Ensures a responsive and interactive user interface.
 
 Together, these components form a unique system known as the **Decentralized Anonymous Voting**.
 
@@ -25,8 +24,7 @@ So, the overarching principle is to trust no one's word outright and to conduct 
 To interact with the system:
 
 1. **MetaMask Requirement**: Ensure you have MetaMask installed. It's crucial as it provides the provider used to retrieve data from the blockchain.
-2. **Accessing the System**: Connect via the IP http://95.179.198.33/governance.
-3. **Blockchain Network Connection**:
+2. **Blockchain Network Connection**:
     - Visit the official blockchain website: [https://hq.q.org/](https://hq.q.org/).
     - Click on "Connect MetaMask" to join the network.
 
@@ -50,13 +48,8 @@ Overall, the performance of the site is fast.
 - Details on proposals are updated every **3 seconds**.
 - This is the maximum delay a user may experience while waiting to view proposal details.
 
-##### Backend Response Time
-- Backend responds in less than **1 second** for each request.
-- Duration may increase due to network latency.
-
 #### Conclusion
 These observations comprehensively describe the performance of the application for anonymous voting.
-
 
 ### User Interaction
 

@@ -22,13 +22,9 @@ const props = withDefaults(
 
 const { t } = useI18n()
 
-const votingEndTime = computed(() =>
-  unixToDate(props.proposal!.params.votingEndTime).getTime(),
-)
+const votingEndTime = computed(() => unixToDate(props.proposal!.params.votingEndTime).getTime())
 
-const formattedVotingEndTime = computed(() =>
-  formatDate(String(votingEndTime.value), t('common.date-format')),
-)
+const formattedVotingEndTime = computed(() => formatDate(String(votingEndTime.value), t('common.date-format')))
 </script>
 
 <style lang="scss" scoped>

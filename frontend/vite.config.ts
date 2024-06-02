@@ -1,16 +1,9 @@
-import checker from 'vite-plugin-checker'
 import vue from '@vitejs/plugin-vue'
+import checker from 'vite-plugin-checker'
+
 import { defineConfig, loadEnv } from 'vite'
 import { visualizer } from 'rollup-plugin-visualizer'
 import { createSvgIconsPlugin } from 'vite-plugin-svg-icons'
-
-/**
- * @description Enable import if you need polyfills
- *
- * import { nodePolyfills } from 'vite-plugin-node-polyfills'
- * import { NodeGlobalsPolyfillPlugin } from '@esbuild-plugins/node-globals-polyfill'
- * import { NodeModulesPolyfillPlugin } from '@esbuild-plugins/node-modules-polyfill'
- */
 
 import * as fs from 'fs'
 import * as path from 'path'
@@ -49,9 +42,6 @@ export default defineConfig(({ mode }) => {
           initialIsOpen: false,
         },
         typescript: true,
-        eslint: {
-          lintCommand: 'eslint "{src,config}/**/*.{vue,js,ts}" --cache --max-warnings=0',
-        },
       }),
       ...(isAnalyze
         ? [
@@ -78,34 +68,5 @@ export default defineConfig(({ mode }) => {
         '@bindings': `${root}/../generated-types/ethers`,
       },
     },
-    /**
-     * @description Enable configuration for polyfills
-     *
-     * optimizeDeps: {
-     *       esbuildOptions: {
-     *         define: {
-     *           global: 'globalThis',
-     *         },
-     *       },
-     *       // Enable esbuild polyfill plugins
-     *       plugins: [
-     *         NodeGlobalsPolyfillPlugin({
-     *           process: true,
-     *           buffer: true,
-     *         }),
-     *         NodeModulesPolyfillPlugin(),
-     *       ],
-     *     },
-     *     build: {
-     *       target: 'esnext',
-     *       rollupOptions: {
-     *         plugins: [
-     *           // Enable rollup polyfills plugin
-     *           // used during production bundling
-     *           nodePolyfills(),
-     *         ],
-     *       },
-     *     },
-     */
   }
 })

@@ -18,27 +18,21 @@
     </div>
     <div class="voting-stats__details">
       <div class="voting-stats__details__item">
-        <span class="voting-stats__details__item__label">{{
-          $t('voting-stats.contract-balance')
-        }}</span>
+        <span class="voting-stats__details__item__label">{{ $t('voting-stats.contract-balance') }}</span>
         <span class="voting-stats__details__item__value">
           {{ contractBalance }}
         </span>
       </div>
       <div class="voting-stats__details__divider"></div>
       <div class="voting-stats__details__item">
-        <span class="voting-stats__details__item__label">{{
-          $t('voting-stats.total-secrets-number')
-        }}</span>
+        <span class="voting-stats__details__item__label">{{ $t('voting-stats.total-secrets-number') }}</span>
         <span class="voting-stats__details__item__value">
           {{ totalSecretsNumber }}
         </span>
       </div>
       <div class="voting-stats__details__divider"></div>
       <div class="voting-stats__details__item">
-        <span class="voting-stats__details__item__label">{{
-          $t('voting-stats.active-secrets-number')
-        }}</span>
+        <span class="voting-stats__details__item__label">{{ $t('voting-stats.active-secrets-number') }}</span>
         <span class="voting-stats__details__item__value">
           {{ activeSecretsNumber }}
         </span>
@@ -56,8 +50,7 @@ import { castAmount } from '@/utils/proposals'
 import { generateSecrets } from '@/gateway/secrets'
 import { useLocalStorage } from '@/composables/use-local-storage'
 
-const { saveSecret, getSecretNumber, getActiveSecretsNumber } =
-  useLocalStorage()
+const { saveSecret, getSecretNumber, getActiveSecretsNumber } = useLocalStorage()
 
 const totalSecretsNumber = ref(0)
 const activeSecretsNumber = ref(0)
@@ -85,10 +78,10 @@ onMounted(async () => {
   flex-direction: column;
   background-color: var(--background-primary-main);
   border-radius: toRem(12);
-  box-shadow: 0 toRem(3) toRem(2) rgba(var(--black-rgb), 0.3),
+  box-shadow:
+    0 toRem(3) toRem(2) rgba(var(--black-rgb), 0.3),
     0 toRem(2) toRem(6) toRem(2) rgba(var(--black-rgb), 0.15);
-  margin: toRem(4) var(--voting-app-padding-left) toRem(4)
-    var(--voting-app-padding-right);
+  margin: toRem(4) var(--voting-app-padding-left) toRem(4) var(--voting-app-padding-right);
 
   &__header {
     display: flex;

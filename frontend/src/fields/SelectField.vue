@@ -2,11 +2,7 @@
   <div :class="selectFieldClasses">
     <div ref="selectElement" class="select-field__select-wrp">
       <div class="select-field__select-head-wrp">
-        <button
-          type="button"
-          class="select-field__select-head"
-          @click="toggleDropdown"
-        >
+        <button type="button" class="select-field__select-head" @click="toggleDropdown">
           <template v-if="$slots.head && !!modelValue">
             <slot
               name="head"
@@ -39,11 +35,7 @@
             :name="$icons.arrowDown"
           />
         </button>
-        <label
-          v-if="label"
-          class="select-field__label"
-          :for="`select-field--${uid}`"
-        >
+        <label v-if="label" class="select-field__label" :for="`select-field--${uid}`">
           {{ label }}
         </label>
       </div>
@@ -65,8 +57,7 @@
               :class="[
                 'select-field__select-dropdown-item',
                 {
-                  'select-field__select-dropdown-item--active':
-                    modelValue === option,
+                  'select-field__select-dropdown-item--active': modelValue === option,
                 },
               ]"
               type="button"
@@ -80,11 +71,7 @@
         </div>
       </transition>
     </div>
-    <transition
-      name="select-field__err-msg-transition"
-      @enter="setHeightCSSVar"
-      @before-leave="setHeightCSSVar"
-    >
+    <transition name="select-field__err-msg-transition" @enter="setHeightCSSVar" @before-leave="setHeightCSSVar">
       <span v-if="errorMessage" class="select-field__err-msg">
         {{ errorMessage }}
       </span>
@@ -139,13 +126,9 @@ onBeforeRouteUpdate(() => {
   closeDropdown()
 })
 
-const isDisabled = computed(() =>
-  ['', 'disabled', true].includes(attrs.disabled as string | boolean),
-)
+const isDisabled = computed(() => ['', 'disabled', true].includes(attrs.disabled as string | boolean))
 
-const isReadonly = computed(() =>
-  ['', 'readonly', true].includes(attrs.readonly as string | boolean),
-)
+const isReadonly = computed(() => ['', 'readonly', true].includes(attrs.readonly as string | boolean))
 
 const isLabelActive = computed(() => isDropdownOpen.value || !!props.modelValue)
 
@@ -160,10 +143,7 @@ const selectFieldClasses = computed(() => ({
 }))
 
 const setHeightCSSVar = (element: Element) => {
-  ;(element as HTMLElement).style.setProperty(
-    '--field-error-msg-height',
-    `${element.scrollHeight}px`,
-  )
+  ;(element as HTMLElement).style.setProperty('--field-error-msg-height', `${element.scrollHeight}px`)
 }
 
 const toggleDropdown = () => {
@@ -276,13 +256,9 @@ $z-local-index: 2;
   width: 100%;
   height: 100%;
 
-  $field-text-height: calc(
-    var(--field-text-font-size) * var(--field-text-line-height)
-  );
+  $field-text-height: calc(var(--field-text-font-size) * var(--field-text-line-height));
 
-  min-height: calc(
-    $field-text-height + var(--field-padding-top) + var(--field-padding-bottom)
-  );
+  min-height: calc($field-text-height + var(--field-padding-top) + var(--field-padding-bottom));
 
   @include field-text;
 
@@ -318,13 +294,15 @@ $z-local-index: 2;
   }
 
   .select-field--error.select-field--primary & {
-    box-shadow: inset 0 0 0 toRem(50) var(--field-bg-primary),
+    box-shadow:
+      inset 0 0 0 toRem(50) var(--field-bg-primary),
       0 0 0 toRem(1) var(--field-error);
     border-color: var(--field-error);
   }
 
   .select-field--open.select-field--primary & {
-    box-shadow: inset 0 0 0 toRem(50) var(--field-bg-primary),
+    box-shadow:
+      inset 0 0 0 toRem(50) var(--field-bg-primary),
       0 0 0 toRem(2) var(--primary-main);
     border-color: var(--primary-main);
   }
@@ -364,7 +342,8 @@ $z-local-index: 2;
   max-height: 500%;
   z-index: $z-local-index;
   background: var(--white);
-  box-shadow: 0 toRem(1) toRem(2) rgba(var(--black-rgb), 0.3),
+  box-shadow:
+    0 toRem(1) toRem(2) rgba(var(--black-rgb), 0.3),
     0 toRem(2) toRem(6) toRem(2) rgba(var(--black-rgb), 0.15);
   border-radius: toRem(14);
 }

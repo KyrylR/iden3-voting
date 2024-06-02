@@ -2,13 +2,7 @@ import { ProposalBaseInfo } from '@/types/proposals'
 import { ethers } from 'ethers'
 import { ProposalStatus } from '@/gateway/proposals'
 
-export type TagState =
-  | 'none'
-  | 'pending'
-  | 'commitment'
-  | 'execution'
-  | 'rejected'
-  | 'executed'
+export type TagState = 'none' | 'pending' | 'commitment' | 'execution' | 'rejected' | 'executed'
 
 export const PERCENTAGE_100 = ethers.toBigInt(10n ** 27n)
 
@@ -59,7 +53,5 @@ export function castAmount(value: bigint): string {
   return ethers.formatEther(value) + ' ETH'
 }
 
-export const bigIntMax = (...args: bigint[]) =>
-  args.reduce((m, e) => (e > m ? e : m))
-export const bigIntMin = (...args: bigint[]) =>
-  args.reduce((m, e) => (e < m ? e : m))
+export const bigIntMax = (...args: bigint[]) => args.reduce((m, e) => (e > m ? e : m))
+export const bigIntMin = (...args: bigint[]) => args.reduce((m, e) => (e < m ? e : m))

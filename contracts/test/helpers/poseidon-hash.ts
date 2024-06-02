@@ -30,6 +30,10 @@ export function poseidonHash(data: string): string {
   return ethers.toBeHex(Poseidon.hash(inputs), 32);
 }
 
+export function getBytes32PoseidonHash(element: string) {
+  return poseidonHash(ethers.toBeHex(element, 32));
+}
+
 function splitHexIntoChunks(hexString: string, chunkSize = 64) {
   const regex = new RegExp(`.{1,${chunkSize}}`, "g");
   const chunks = hexString.match(regex);

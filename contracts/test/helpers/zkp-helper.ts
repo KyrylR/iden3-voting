@@ -2,11 +2,9 @@
 import * as snarkjs from "snarkjs";
 
 import { ethers } from "hardhat";
-import { MerkleTree } from "merkletreejs";
 
-import { poseidonHash } from "@/test/helpers/poseidon-hash";
-import { getBytes32PoseidonHash, getPositionalProof } from "@/test/helpers/merkle-tree-helper";
-import { VerifierHelper } from "@/generated-types/ethers/contracts/Voting";
+import { getBytes32PoseidonHash, poseidonHash } from "@/test/helpers/poseidon-hash";
+import { VerifierHelper, Voting } from "@/generated-types/ethers/contracts/Voting";
 
 export interface CommitmentFields {
   secret: string;
@@ -30,31 +28,28 @@ export function getCommitment(pair: CommitmentFields): string {
 }
 
 export function getNullifierHash(pair: CommitmentFields): string {
-  return poseidonHash(pair.nullifier);
+  return poseidonHash(pair.nullifier + pair.proposalId.replace("0x", ""));
 }
 
-export async function getZKP(
-  pair: CommitmentFields,
-  voter: string,
-  proposalId: string,
-  root: string,
-  tree: MerkleTree
-) {
+export async function getZKP(contract: Voting, pair: CommitmentFields, voter: string, proposalId: string) {
   const leaf = getBytes32PoseidonHash(getCommitment(pair));
   const nullifierHash = getNullifierHash(pair);
 
-  const [pathIndices, pathElements] = getPositionalProof(tree, leaf);
+  const smtProof = await contract.getProof(leaf);
 
   const { proof } = await snarkjs.groth16.fullProve(
     {
-      root,
+      root: await contract.getRoot(),
       nullifierHash,
-      secret: pair.secret,
-      nullifier: pair.nullifier,
       voter,
       proposalId,
-      pathElements,
-      pathIndices,
+      secret: pair.secret,
+      nullifier: pair.nullifier,
+      siblings: smtProof.siblings,
+      auxKey: smtProof.auxKey,
+      auxValue: smtProof.auxValue,
+      auxIsEmpty: smtProof.auxExistence,
+      isExclusion: 0,
     },
     `./circuits/outputs/voting.wasm`,
     `./circuits/outputs/circuit_final.zkey`
