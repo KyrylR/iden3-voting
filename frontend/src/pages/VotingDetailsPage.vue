@@ -30,11 +30,7 @@ import { useRoute } from 'vue-router'
 
 import AppButton from '@/common/AppButton.vue'
 
-import {
-  getProposal,
-  getProposalStatus,
-  ProposalStatus,
-} from '@/gateway/proposals'
+import { getProposal, getProposalStatus, ProposalStatus } from '@/gateway/proposals'
 
 import { ProposalBaseInfo } from '@/types/proposals'
 import { router } from '@/router'
@@ -63,9 +59,7 @@ onMounted(async () => {
     await router.push({ name: ROUTE_NAMES.notFound })
   }
 
-  proposalStatus.value = await getProposalStatus(
-    ethers.toBigInt(proposalId.value),
-  )
+  proposalStatus.value = await getProposalStatus(ethers.toBigInt(proposalId.value))
   statusState.value = getStatusState(proposalStatus.value)
 })
 
@@ -80,9 +74,7 @@ onMounted(async () => {
 async function updateProposal() {
   if (proposal.value) {
     proposal.value = await getProposal(ethers.toBigInt(proposalId.value))
-    proposalStatus.value = await getProposalStatus(
-      ethers.toBigInt(proposalId.value),
-    )
+    proposalStatus.value = await getProposalStatus(ethers.toBigInt(proposalId.value))
     statusState.value = getStatusState(proposalStatus.value)
   }
 }
@@ -102,8 +94,7 @@ watch(proposal, newVal => {
 
 <style lang="scss" scoped>
 .voting-details-page {
-  padding: toRem(24) var(--voting-app-padding-left) toRem(36)
-    var(--voting-app-padding-right);
+  padding: toRem(24) var(--voting-app-padding-left) toRem(36) var(--voting-app-padding-right);
 
   &__back-button {
     font-size: toRem(15);
@@ -113,8 +104,7 @@ watch(proposal, newVal => {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: toRem(12);
-    padding: toRem(8) var(--voting-app-padding-left) toRem(36)
-      var(--voting-app-padding-right);
+    padding: toRem(8) var(--voting-app-padding-left) toRem(36) var(--voting-app-padding-right);
     margin-top: toRem(24);
 
     @media (width <= 53.75rem) {

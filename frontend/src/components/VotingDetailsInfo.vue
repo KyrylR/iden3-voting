@@ -7,9 +7,7 @@
     </div>
     <div class="voting-details-info__details">
       <div class="voting-details-info__details__item">
-        <span class="voting-details-info__details__item__label">{{
-          $t('voting-details-info.remark') + ':'
-        }}</span>
+        <span class="voting-details-info__details__item__label">{{ $t('voting-details-info.remark') + ':' }}</span>
         <span class="voting-details-info__details__item__value">
           {{ props.remark }}
         </span>
@@ -35,10 +33,10 @@ const props = withDefaults(
   flex-direction: column;
   background-color: var(--background-primary-main);
   border-radius: toRem(12);
-  box-shadow: 0 toRem(3) toRem(2) rgba(var(--black-rgb), 0.3),
+  box-shadow:
+    0 toRem(3) toRem(2) rgba(var(--black-rgb), 0.3),
     0 toRem(2) toRem(6) toRem(2) rgba(var(--black-rgb), 0.15);
-  margin: toRem(4) var(--voting-app-padding-left) toRem(4)
-    var(--voting-app-padding-right);
+  margin: toRem(4) var(--voting-app-padding-left) toRem(4) var(--voting-app-padding-right);
 
   &__header {
     display: flex;

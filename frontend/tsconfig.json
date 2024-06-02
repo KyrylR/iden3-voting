@@ -18,8 +18,7 @@
     "paths": {
       "@/*": ["src/*"],
       "@config": ["src/config.ts"],
-      "@static": ["static"],
-      "@bindings": ["generated-types/ethers"]
+      "@static": ["static"]
     },
     "lib": ["ESNext", "DOM", "DOM.Iterable", "ScriptHost"],
     "isolatedModules": true,

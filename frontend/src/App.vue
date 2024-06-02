@@ -34,18 +34,10 @@ const init = async () => {
 }
 
 const initNotifications = () => {
-  bus.on(BUS_EVENTS.success, payload =>
-    showToast('success', payload as NotificationPayload),
-  )
-  bus.on(BUS_EVENTS.warning, payload =>
-    showToast('warning', payload as NotificationPayload),
-  )
-  bus.on(BUS_EVENTS.error, payload =>
-    showToast('error', payload as NotificationPayload),
-  )
-  bus.on(BUS_EVENTS.info, payload =>
-    showToast('info', payload as NotificationPayload),
-  )
+  bus.on(BUS_EVENTS.success, payload => showToast('success', payload as NotificationPayload))
+  bus.on(BUS_EVENTS.warning, payload => showToast('warning', payload as NotificationPayload))
+  bus.on(BUS_EVENTS.error, payload => showToast('error', payload as NotificationPayload))
+  bus.on(BUS_EVENTS.info, payload => showToast('info', payload as NotificationPayload))
 }
 
 init()

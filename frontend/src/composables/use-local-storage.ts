@@ -1,7 +1,9 @@
-import { ActiveSecret, SecretPair } from '@/types/secrets'
 import { id } from 'ethers'
-import { generateSecrets } from '@/gateway/secrets'
+
 import { ErrorHandler } from '@/helpers'
+
+import { generateSecrets } from '@/gateway/secrets'
+import { ActiveSecret, SecretPair } from '@/types/secrets'
 
 interface SecretStore {
   [key: string]: SecretPair
@@ -68,12 +70,16 @@ export function useLocalStorage() {
 
     const unzipped = storedSecrets ? JSON.parse(storedSecrets) : []
 
+    console.log('unzipped', unzipped)
+
     const keys = unzipped.map((pair: string[]) => pair[0])
     const values = unzipped.map((pair: string[]) => pair[1])
 
     const store: ActiveSecretStore = {}
 
     keys.forEach((key: string, index: number) => (store[key] = values[index]))
+
+    console.log(store)
 
     return store
   }
@@ -115,13 +121,13 @@ export function useLocalStorage() {
 
   function getActiveSecret(proposalId: bigint): ActiveSecret | undefined {
     const activeSecrets = getActiveSecretStore()[proposalId.toString()]
+
     return activeSecrets.find(secret => secret.status === 'active')
   }
 
   function getActiveSecretsNumber(): number {
     return Object.values(getActiveSecretStore()).reduce(
-      (count, secrets) =>
-        count + secrets.filter(secret => secret.status === 'active').length,
+      (count, secrets) => count + secrets.filter(secret => secret.status === 'active').length,
       0,
     )
   }
@@ -137,9 +143,7 @@ export function useLocalStorage() {
 
     const activeSecrets = activeSecretsStore[proposalIdStr]
     const index = activeSecrets.findIndex(
-      secret =>
-        id(JSON.stringify(secret.secret)) ===
-        id(JSON.stringify(activeSecret.secret)),
+      secret => id(JSON.stringify(secret.secret)) === id(JSON.stringify(activeSecret.secret)),
     )
     activeSecrets[index].status = 'used'
 
@@ -156,6 +160,5 @@ export function useLocalStorage() {
     getActiveSecret,
     getActiveSecretsNumber,
     useActiveSecret,
-    saveActiveSecret,
   }
 }

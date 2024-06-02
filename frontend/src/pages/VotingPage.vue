@@ -8,11 +8,7 @@
 
     <!-- Proposals Section -->
     <div class="proposal-list">
-      <proposal-card
-        v-for="proposal in proposals"
-        :key="proposal.id.toString()"
-        :proposal="proposal"
-      />
+      <proposal-card v-for="proposal in proposals" :key="proposal.id.toString()" :proposal="proposal" />
     </div>
   </div>
 </template>
@@ -61,8 +57,7 @@ onUnmounted(() => {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: toRem(12);
-  margin: toRem(24) var(--voting-app-padding-left) toRem(0)
-    var(--voting-app-padding-right);
+  margin: toRem(24) var(--voting-app-padding-left) toRem(0) var(--voting-app-padding-right);
 
   @media (width <= 53.75rem) {
     grid-template-columns: 1fr;

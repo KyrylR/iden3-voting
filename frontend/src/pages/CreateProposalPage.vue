@@ -51,13 +51,31 @@ import AppButton from '@/common/AppButton.vue'
 import InputField from '@/fields/InputField.vue'
 
 import { createProposal } from '@/gateway/proposals'
+import { TYPE, useToast } from 'vue-toastification'
+import { useI18n } from 'vue-i18n'
 
 const form = reactive({
   input: '',
 })
 
+const { t } = useI18n()
+const toast = useToast()
+
 async function handleSubmitButtonClick() {
-  await createProposal(form.input)
+  const receipt = await createProposal(form.input)
+
+  try {
+    await receipt.wait()
+
+    toast.success(t('create-voting-form.success'), {
+      type: TYPE.SUCCESS,
+    })
+  } catch (error) {
+    toast.error(t('create-voting-form.error'), {
+      type: TYPE.ERROR,
+    })
+    return
+  }
 }
 </script>
 
@@ -67,15 +85,15 @@ async function handleSubmitButtonClick() {
   flex-direction: column;
   background-color: var(--background-primary-main);
   border-radius: toRem(12);
-  box-shadow: 0 toRem(3) toRem(2) rgba(var(--black-rgb), 0.3),
+  box-shadow:
+    0 toRem(3) toRem(2) rgba(var(--black-rgb), 0.3),
     0 toRem(2) toRem(6) toRem(2) rgba(var(--black-rgb), 0.15);
   padding: toRem(0) toRem(36);
   margin: toRem(36) toRem(36);
 }
 
 .create-proposal-page {
-  padding: toRem(24) var(--voting-app-padding-left) toRem(36)
-    var(--voting-app-padding-right);
+  padding: toRem(24) var(--voting-app-padding-left) toRem(36) var(--voting-app-padding-right);
 
   &__back-button {
     font-size: toRem(15);

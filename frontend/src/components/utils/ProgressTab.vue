@@ -1,10 +1,7 @@
 <template>
   <div class="progress" v-bind="$attrs">
     <div class="progress__track" :style="{ backgroundColor: props.trackColor }">
-      <div
-        class="progress__track__value"
-        :style="{ width: valuePercentage, backgroundColor: props.valueColor }"
-      ></div>
+      <div class="progress__track__value" :style="{ width: valuePercentage, backgroundColor: props.valueColor }"></div>
     </div>
   </div>
 </template>

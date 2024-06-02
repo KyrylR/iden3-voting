@@ -107,6 +107,8 @@
     "submit": "Submit"
   },
   "create-voting-form": {
-    "remark-input": "External Information"
+    "remark-input": "External Information",
+    "success": "Successfully created proposal",
+    "error": "Error creating proposal"
   }
 }

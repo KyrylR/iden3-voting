@@ -8,11 +8,9 @@ import { ethers } from 'ethers'
 
 import { Poseidon } from '@iden3/js-crypto'
 
-import { ProofResponse, SecretPair } from '@/types/secrets'
+import { SecretPair } from '@/types/secrets'
 
-import { VerifierHelper } from 'generated-types/ethers/contracts/Voting'
-import { fetchProof } from '@/gateway/proofs'
-import { ErrorHandler } from '@/helpers'
+import { VerifierHelper, Voting } from '@/generated-types/Voting'
 
 export function poseidonHash(data: string): string {
   data = ethers.hexlify(data)
@@ -28,11 +26,14 @@ export function generateSecrets(): SecretPair {
   return {
     secret: padElement(ethers.hexlify(secret)),
     nullifier: padElement(ethers.hexlify(nullifier)),
+    proposalId: '0',
   }
 }
 
 export function getCommitment(pair: SecretPair): string {
-  return poseidonHash(pair.secret + pair.nullifier.replace('0x', ''))
+  return poseidonHash(
+    pair.secret + pair.nullifier.replace('0x', '') + ethers.toBeHex(pair.proposalId, 32).replace('0x', ''),
+  )
 }
 
 export function getNullifierHash(pair: SecretPair): string {
@@ -43,35 +44,40 @@ export function getBytes32PoseidonHash(element: string) {
   return poseidonHash(ethers.toBeHex(element, 32))
 }
 
-export async function getZKP(
-  pair: SecretPair,
-  voter: string,
-  proposalId: string,
-) {
+export async function getZKP(contract: Voting, pair: SecretPair, voter: string, proposalId: string) {
+  pair.proposalId = proposalId
   const leaf = getBytes32PoseidonHash(getCommitment(pair))
   const nullifierHash = getNullifierHash(pair)
 
-  const proofData: ProofResponse | null = await fetchProof(leaf)
+  const smtProof = await contract.getProof(leaf)
 
-  if (!proofData) {
-    ErrorHandler.process('Failed to fetch proof data')
-    return null
-  }
-
-  const tree_root = '0x' + proofData.tree_root
-  const pathElements = proofData.proof_hashes.map((x: string) => '0x' + x)
-  const pathIndices = proofData.proof_indices
+  console.log({
+    root: smtProof.root,
+    nullifierHash,
+    voter,
+    proposalId,
+    secret: pair.secret,
+    nullifier: pair.nullifier,
+    siblings: smtProof.siblings,
+    auxKey: smtProof.auxKey,
+    auxValue: smtProof.auxValue,
+    auxIsEmpty: smtProof.auxExistence,
+    isExclusion: 0,
+  })
 
   const { proof } = await snarkjs.groth16.fullProve(
     {
-      root: tree_root,
-      nullifierHash: nullifierHash,
+      root: smtProof.root,
+      nullifierHash,
+      voter,
+      proposalId,
       secret: pair.secret,
       nullifier: pair.nullifier,
-      voter: voter,
-      proposalId: proposalId,
-      pathElements: pathElements,
-      pathIndices: pathIndices,
+      siblings: smtProof.siblings,
+      auxKey: smtProof.auxKey,
+      auxValue: smtProof.auxValue,
+      auxIsEmpty: smtProof.auxExistence,
+      isExclusion: 0,
     },
     '/data/voting.wasm',
     '/data/circuit_final.zkey',
@@ -82,14 +88,12 @@ export async function getZKP(
 
   const formattedProof: VerifierHelper.ProofPointsStruct = {
     a: proof.pi_a.slice(0, 2).map((x: any) => padElement(BigInt(x))),
-    b: proof.pi_b
-      .slice(0, 2)
-      .map((x: any[]) => x.map((y: any) => padElement(BigInt(y)))),
+    b: proof.pi_b.slice(0, 2).map((x: any[]) => x.map((y: any) => padElement(BigInt(y)))),
     c: proof.pi_c.slice(0, 2).map((x: any) => padElement(BigInt(x))),
   }
 
   return {
-    tree_root,
+    tree_root: smtProof.root,
     formattedProof,
     nullifierHash,
   }

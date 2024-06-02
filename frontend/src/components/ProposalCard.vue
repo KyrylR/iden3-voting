@@ -16,23 +16,17 @@
     <div class="proposal-card__voting">
       <div class="proposal-card__voting__quorum">
         <div class="proposal-card__quorum__current">
-          {{
-            $t('proposal-card.quorum') +
-            ' ' +
-            formatPercent(singlePrecision(currentQuorum))
-          }}
+          {{ $t('proposal-card.quorum') + ' ' + formatPercent(singlePrecision(currentQuorum)) }}
         </div>
         <div class="proposal-card__quorum__left">
-          {{
-            $t('proposal-card.left-quorum') +
-            ' ' +
-            formatPercent(singlePrecision(leftQuorum))
-          }}
+          {{ $t('proposal-card.left-quorum') + ' ' + formatPercent(singlePrecision(leftQuorum)) }}
         </div>
       </div>
       <progress-tab
         :value="Number(singlePrecision(currentQuorum))"
         :max="Number(singlePrecision(requiredQuorum))"
+        :track-color="trackColor"
+        :value-color="valueColor"
         class="proposal-card__voting__progress"
       />
       <voting-periods :proposal="proposal" />
@@ -44,15 +38,12 @@
 import { ref, computed, onMounted } from 'vue'
 import { LocationAsRelativeRaw } from 'vue-router'
 
+import { trackColor, valueColor } from '@/constants'
+
 import Tag from '@/components/utils/Tag.vue'
 
 import { ProposalBaseInfo } from '@/types/proposals'
-import {
-  bigIntMax,
-  getCurrentQuorum,
-  getStatusState,
-  TagState,
-} from '@/utils/proposals'
+import { bigIntMax, getCurrentQuorum, getStatusState, TagState } from '@/utils/proposals'
 import { formatPercent, singlePrecision } from '@/helpers'
 
 import ProgressTab from '@/components/utils/ProgressTab.vue'
@@ -73,9 +64,7 @@ const props = withDefaults(
 const proposalStatus = ref<ProposalStatus>('voting-status.none')
 const statusState = ref<TagState>('none')
 
-const proposalLink = computed(
-  () => `/governance/proposal/${props.proposal!.id}`,
-)
+const proposalLink = computed(() => `/governance/proposal/${props.proposal!.id}`)
 
 const currentQuorum = computed(() => getCurrentQuorum(props.proposal!))
 const requiredQuorum = computed(() => props.proposal!.params.requiredQuorum)
@@ -102,7 +91,9 @@ async function updateProposalStatus() {
   color: var(--app-button-text);
   border-radius: toRem(14);
   padding: var(--field-padding);
-  transition: background-color 0.3s ease, box-shadow 0.3s ease,
+  transition:
+    background-color 0.3s ease,
+    box-shadow 0.3s ease,
     border-color 0.3s ease;
 
   &:hover,

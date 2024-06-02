@@ -11,11 +11,7 @@
         }"
       />
     </div>
-    <transition
-      name="accordion__body-transition"
-      @enter="setHeightCSSVar"
-      @before-leave="setHeightCSSVar"
-    >
+    <transition name="accordion__body-transition" @enter="setHeightCSSVar" @before-leave="setHeightCSSVar">
       <div v-show="isAccordionOpen" class="accordion__body">
         <slot
           :accordion="{
@@ -75,10 +71,7 @@ const openAccordion = () => {
 }
 
 const setHeightCSSVar = (element: Element) => {
-  ;(element as HTMLElement).style.setProperty(
-    '--accordion-body-height',
-    `${element.scrollHeight}px`,
-  )
+  ;(element as HTMLElement).style.setProperty('--accordion-body-height', `${element.scrollHeight}px`)
 }
 </script>
 

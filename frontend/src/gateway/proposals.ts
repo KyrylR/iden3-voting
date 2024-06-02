@@ -4,9 +4,9 @@ import { config } from '@config'
 
 import { ProposalBaseInfo } from '@/types/proposals'
 
-import { Voting, Voting__factory } from '@bindings'
 import { SecretPair } from '@/types/secrets'
 import { getCommitment, getZKP } from '@/gateway/secrets'
+import { Voting, Voting__factory } from '@/generated-types'
 
 export async function getProposals(itemsPerPage: number, currentPage: number) {
   const voting = await getVotingInstance()
@@ -14,10 +14,7 @@ export async function getProposals(itemsPerPage: number, currentPage: number) {
   const proposalCount = await voting.proposalsCount()
 
   // Calculate start and end based on currentPage and itemsPerPage
-  const start = Math.max(
-    0,
-    Number(proposalCount) - (currentPage - 1) * itemsPerPage,
-  )
+  const start = Math.max(0, Number(proposalCount) - (currentPage - 1) * itemsPerPage)
   const end = Math.max(0, Number(proposalCount) - currentPage * itemsPerPage)
 
   const proposals: ProposalBaseInfo[] = []
@@ -61,8 +58,8 @@ export const FIFTY_PERCENTAGE = '500000000000000000000000000'
 
 const DEFAULT_DATA = {
   commitmentPeriod: 100n,
-  votingPeriod: 100n,
-  proposalExecutionPeriod: 100n,
+  votingPeriod: 1000000n,
+  proposalExecutionPeriod: 100000n,
   requiredQuorum: FIVE_PERCENTAGE,
   requiredMajority: FIFTY_PERCENTAGE,
 }
@@ -80,25 +77,20 @@ export async function createProposal(remark: string) {
   return voting.createProposal(remark, DEFAULT_DATA, callData)
 }
 
-export async function commitOnProposal(
-  proposalId: bigint,
-  secrets: SecretPair,
-) {
+export async function commitOnProposal(proposalId: bigint, secrets: SecretPair) {
   const voting = await getVotingInstance()
+  secrets.proposalId = proposalId.toString()
   return voting.commitOnProposal(proposalId, getCommitment(secrets), {
     value: ethers.parseEther('1'),
   })
 }
 
-export async function voteOnProposal(
-  proposalId: bigint,
-  secrets: SecretPair,
-  option: number,
-) {
+export async function voteOnProposal(proposalId: bigint, secrets: SecretPair, option: number) {
   const voting = await getVotingInstance()
   const signer = await getDefaultSigner()
 
   const dataToVerify = await getZKP(
+    await getVotingInstance(),
     secrets,
     await signer.getAddress(),
     proposalId.toString(),
@@ -159,7 +151,11 @@ export async function getContractBalance() {
   return provider.getBalance(config.APP_VOTING_CONTRACT_ADDRESS)
 }
 
-async function getVotingInstance() {
+async function getVotingInstance(rpcProvider: any = undefined) {
+  if (rpcProvider) {
+    return Voting__factory.connect(config.APP_VOTING_CONTRACT_ADDRESS, rpcProvider)
+  }
+
   if (!window.ethereum) {
     throw new Error('MetaMask is not installed')
   }
@@ -185,9 +181,7 @@ async function getDefaultSigner() {
   return provider.getSigner()
 }
 
-function toProposalBaseInfo(
-  proposal: Voting.ProposalInfoStructOutput,
-): ProposalBaseInfo {
+function toProposalBaseInfo(proposal: Voting.ProposalInfoStructOutput): ProposalBaseInfo {
   return {
     id: proposal.id,
     remark: proposal.remark,

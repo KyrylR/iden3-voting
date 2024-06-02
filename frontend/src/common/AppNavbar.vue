@@ -2,12 +2,7 @@
   <div class="app-navbar">
     <app-logo class="app-navbar__logo" />
 
-    <app-button
-      class="app-navbar__link"
-      :scheme="'flat'"
-      :text="$routes.voting"
-      :route="{ name: $routes.voting }"
-    />
+    <app-button class="app-navbar__link" :scheme="'flat'" :text="$routes.voting" :route="{ name: $routes.voting }" />
 
     <!-- MetaMask Connection Button -->
     <app-button
@@ -19,12 +14,7 @@
     />
 
     <!-- Display User Address -->
-    <app-button
-      v-if="userAddress"
-      :scheme="'flat'"
-      :text="truncatedAddress"
-      @click="handleAddressClick"
-    />
+    <app-button v-if="userAddress" :scheme="'flat'" :text="truncatedAddress" @click="handleAddressClick" />
   </div>
 </template>
 
@@ -52,10 +42,7 @@ const truncatedAddress = computed(() => {
   if (length <= startChars + endChars) {
     return userAddress.value
   }
-  return `${userAddress.value.substring(
-    0,
-    startChars,
-  )}...${userAddress.value.substring(length - endChars)}`
+  return `${userAddress.value.substring(0, startChars)}...${userAddress.value.substring(length - endChars)}`
 })
 
 const handleAccountsChanged = (accounts: string[]) => {
