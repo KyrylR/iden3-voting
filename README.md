@@ -1,5 +1,9 @@
 # Voting service ensuring anonymity
 
+## Notice 
+
+This project is a PoC for the "Розробка платформи для забезпечення приватних транзакцій в мережі Ethereum". This project demonstrates how the Commitment-Nullifier Scheme can be used to ensure anonymity in voting. However, it does not fully implement all of the functionality mentioned in the paper due to the complexity and cutting-edge technologies involved.
+
 ## Overview
 
 This project comprises three main components:
